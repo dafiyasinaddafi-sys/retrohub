@@ -2481,6 +2481,19 @@
                 
                 // Kirim chat privat otomatis ke buyer dan seller
                 const order = db.getOrderById(orderId);
+                const amount = Number(order ? (order.price + (order.shipping_cost || 0)) : 0);
+                
+                // Catat log API ke local & Supabase
+                db.addAPILog(orderId, amount, 'success');
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    supabaseClient.from('api_logs').insert({
+                        log_id: `API-MANUAL-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+                        order_id: orderId,
+                        amount: amount,
+                        status: 'success'
+                    }).then();
+                }
+
                 if (order) {
                     db.sendPrivateChat('admin-demo', order.buyer_id, `Pembayaran rekber Anda untuk pesanan (Order ID: ${orderId}) telah diverifikasi oleh admin RetroHub! Status pesanan kini: Perlu Dikirim. Penjual sedang menyiapkan barang Anda! 📦`);
                     db.sendPrivateChat('admin-demo', order.seller_id, `Dana pembayaran dari pembeli untuk pesanan (Order ID: ${orderId}) telah diverifikasi rekber! Silakan segera packing barang dan input nomor resi pengiriman di dashboard seller Anda. 📦`);
@@ -2537,6 +2550,17 @@
                 
                 const amount = Number(order.total_price || (order.price + order.shipping_cost) || 0);
                 db.addAPILog(orderId, amount, status);
+
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    supabaseClient.from('api_logs').insert({
+                        log_id: `API-SIM-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+                        order_id: orderId,
+                        amount: amount,
+                        status: status
+                    }).then(({ error }) => {
+                        if (error) console.error('[Admin] Gagal memasukkan log simulasi ke Supabase:', error);
+                    });
+                }
 
                 if (status === 'success') {
                     orders[index].status = 'to_ship';
@@ -2632,6 +2656,7 @@
         window.addEventListener('retrohub_dispute_updated', () => { refreshActiveTabData(); });
         window.addEventListener('retrohub_categories_updated', () => { refreshActiveTabData(); });
         window.addEventListener('retrohub_sync_complete', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_api_logs_updated', () => { refreshActiveTabData(); });
     </script>
 </body>
 </html>
