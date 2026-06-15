@@ -1977,8 +1977,8 @@
 
                 return `
                     <tr style="border-bottom: 1px solid var(--retro-light-gray);">
-                        <td style="padding: 8px; font-family: var(--font-number); font-weight: bold;">${l.id}</td>
-                        <td style="padding: 8px; font-weight: bold; color: var(--mario-blue);">${l.order_id}</td>
+                        <td style="padding: 8px; font-family: var(--font-number); font-weight: bold;">${l.log_id || l.id}</td>
+                        <td style="padding: 8px; font-weight: bold; color: var(--mario-blue); cursor: pointer; text-decoration: underline;" onclick="scrollToAndOpenOrder('${l.order_id}')">${l.order_id}</td>
                         <td style="padding: 8px; font-family: var(--font-number);">Rp${l.amount.toLocaleString('id-ID')}</td>
                         <td style="padding: 8px;">${statusTag}</td>
                         <td style="padding: 8px;">${new Date(l.timestamp).toLocaleString('id-ID')}</td>
@@ -2052,7 +2052,7 @@
             tbody.innerHTML = filtered.map(p => `
                 <tr style="border-bottom: 1px solid var(--retro-light-gray);">
                     <td style="padding: 8px 4px;"><img src="${p.image_url}" style="width: 40px; height: 40px; object-fit: cover; border: 1.5px solid var(--retro-dark); border-radius: 4px;"></td>
-                    <td style="padding: 8px 4px; font-weight: bold; font-size: 0.8rem;">${p.title}</td>
+                    <td style="padding: 8px 4px; font-weight: bold; font-size: 0.8rem;"><a href="product.html?id=${p.id}" target="_blank" style="color: var(--mario-blue); text-decoration: underline;">${p.title}</a></td>
                     <td style="padding: 8px 4px; font-size: 0.8rem; font-family: var(--font-number);">Rp${p.price ? p.price.toLocaleString('id-ID') : (p.starting_bid || 0).toLocaleString('id-ID')}</td>
                     <td style="padding: 8px 4px;"><span class="tag ${p.transaction_type === 'lelang' ? 'loose' : 'bib'}" style="font-size: 0.65rem;">${p.transaction_type.toUpperCase()}</span></td>
                     <td style="padding: 8px 4px; font-size: 0.8rem; font-family: var(--font-number);">${p.transaction_type === 'lelang' ? '1' : (p.stock !== undefined && p.stock !== null ? p.stock : 1)}</td>
@@ -2136,6 +2136,57 @@
                 }
             });
             renderTransactionsMonitor();
+        };
+
+        window.toggleOrderCollapse = function(orderId) {
+            const detailDiv = document.getElementById(`order-detail-${orderId}`);
+            const arrowSpan = document.getElementById(`order-arrow-${orderId}`);
+            if (detailDiv) {
+                if (detailDiv.style.display === 'none') {
+                    detailDiv.style.display = 'block';
+                    if (arrowSpan) arrowSpan.innerHTML = '▲';
+                } else {
+                    detailDiv.style.display = 'none';
+                    if (arrowSpan) arrowSpan.innerHTML = '▼';
+                }
+            }
+        };
+
+        window.scrollToAndOpenOrder = function(orderId) {
+            // Set filter ke 'all' dan render ulang agar order card tampil
+            if (typeof filterTransactions === 'function') {
+                filterTransactions('all');
+            }
+            
+            // Tunggu render ulang selesai
+            setTimeout(() => {
+                const detailDiv = document.getElementById(`order-detail-${orderId}`);
+                if (detailDiv) {
+                    // Buka collapsible detail
+                    const arrowSpan = document.getElementById(`order-arrow-${orderId}`);
+                    detailDiv.style.display = 'block';
+                    if (arrowSpan) arrowSpan.innerHTML = '▲';
+                    
+                    // Scroll ke verify-card
+                    const card = detailDiv.closest('.verify-card');
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Efek highlight kuning sejenak
+                        const originalBg = card.style.backgroundColor;
+                        card.style.backgroundColor = '#FEF08A';
+                        setTimeout(() => {
+                            card.style.backgroundColor = originalBg;
+                        }, 1500);
+                    }
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast("Tidak Ditemukan ⚠️", `Order ID ${orderId} tidak ditemukan.`);
+                    } else {
+                        alert(`Order ID ${orderId} tidak ditemukan.`);
+                    }
+                }
+            }, 250);
         };
 
         window.renderTransactionsMonitor = async function() {
@@ -2285,49 +2336,63 @@
                 }
 
                 return `
-                    <div class="verify-card" style="background-color: #FFFFFF;">
-                        <div class="verify-header">
-                            <span style="font-family: var(--font-retro); font-size: 0.9rem; color: var(--retro-dark);">
-                                Order ID: <span style="font-family: var(--font-number);">${order.id}</span>
-                            </span>
-                            <span style="font-size: 0.75rem; background-color: ${badgeColor}; color: ${isWaitingPayment ? 'var(--retro-dark)' : 'white'}; padding: 4px 10px; border-radius: 4px; border: 1.5px solid var(--retro-dark); font-weight: bold; box-shadow: 1.5px 1.5px 0px var(--retro-dark);">
-                                ${statusBadge}
-                            </span>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.8rem; line-height: 1.4; margin-bottom: 12px;">
-                            <div>
-                                <p><strong>Produk:</strong> ${order.product_title}</p>
-                                <p><strong>Harga Barang:</strong> <span style="font-family: var(--font-number);">Rp${order.price.toLocaleString('id-ID')}</span></p>
-                                <p><strong>Ongkos Kirim (${order.courier ? order.courier.toUpperCase() : 'Biteship'}):</strong> <span style="font-family: var(--font-number);">Rp${(order.shipping_cost || 0).toLocaleString('id-ID')}</span></p>
-                                <p><strong>Total Dana:</strong> <span style="font-family: var(--font-number); font-weight: bold; color: var(--mario-blue);">Rp${(order.price + (order.shipping_cost || 0)).toLocaleString('id-ID')}</span></p>
+                    <div class="verify-card" style="background-color: #FFFFFF; padding: 10px 14px; cursor: pointer; border: 2.5px solid var(--retro-dark); border-radius: 8px; box-shadow: 4px 4px 0px var(--retro-dark); margin-bottom: 12px;" onclick="toggleOrderCollapse('${order.id}')">
+                        <div class="verify-header" style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span style="font-family: var(--font-retro); font-size: 0.8rem; color: var(--retro-dark); font-weight: bold;">
+                                    [${order.id.slice(-6)}] ${order.product_title}
+                                </span>
+                                <span style="font-size: 0.72rem; background-color: ${badgeColor}; color: ${isWaitingPayment ? 'var(--retro-dark)' : 'white'}; padding: 2px 6px; border-radius: 4px; border: 1.5px solid var(--retro-dark); font-weight: bold;">
+                                    ${statusBadge}
+                                </span>
+                                <span style="font-family: var(--font-number); font-size: 0.78rem; font-weight: bold; color: var(--mario-blue);">
+                                    Rp${(order.price + (order.shipping_cost || 0)).toLocaleString('id-ID')}
+                                </span>
                             </div>
-                            <div style="border-left: 1.5px dashed var(--retro-light-gray); padding-left: 16px;">
-                                <p><strong>Tanggal Transaksi:</strong> ${dateStr}</p>
-                                <p><strong>Penjual (Seller):</strong> ${order.seller_name}</p>
-                                <p><strong>Pembeli (Buyer):</strong> ${order.buyer_name}</p>
-                                <p><strong>No. Resi (Tracking):</strong> ${order.tracking_number ? `<span style="font-family: var(--font-number); background: #F1F5F9; padding: 2px 6px; border: 1px solid #CBD5E1; border-radius: 4px; font-weight: bold;">${order.tracking_number}</span>` : '<span style="color: #94A3B8; font-style: italic;">Belum diinput seller</span>'}</p>
-                                <p><strong>Status API Gateway:</strong> 
-                                    <span style="font-family: var(--font-retro); font-size: 0.75rem; padding: 2px 6px; border: 1.5px solid var(--retro-dark); border-radius: 4px; background-color: ${apiStatusColor}; color: ${apiStatusTextColor}; font-weight: bold; box-shadow: 1px 1px 0px var(--retro-dark);">
-                                        ${apiStatusLabel}
-                                    </span>
-                                </p>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 0.7rem; color: #64748B;">${new Date(order.created_at).toLocaleDateString('id-ID')}</span>
+                                <span id="order-arrow-${order.id}" style="font-size: 0.8rem; color: var(--retro-dark); font-weight: bold;">▼</span>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
-                            ${order.status === 'disputed' ? `
-                                <button class="btn-retro btn-red" onclick="switchTab('sengketa-rekber')" style="font-size: 0.75rem; padding: 6px 12px;">⚖️ Buka Dispute Center</button>
-                            ` : ''}
-                            ${isWaitingPayment ? `
-                                <button class="btn-retro btn-yellow" onclick="handleCheckPaymentAPI('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;">🔄 Cek Status API</button>
-                                <button class="btn-retro btn-green" onclick="handleAdminConfirmPayment('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">👍 Konfirmasi Bayar</button>
-                            ` : ''}
-                            ${order.status === 'shipping' ? `
-                                <button class="btn-retro btn-green" onclick="handleAdminCompleteOrder('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">✅ Selesaikan Pesanan</button>
-                            ` : ''}
-                            ${['waiting_payment', 'pending_payment', 'to_ship', 'paid', 'shipping'].includes(order.status) ? `
-                                <button class="btn-retro btn-red" onclick="handleAdminCancelOrder('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">❌ Batalkan & Refund</button>
-                            ` : ''}
-                            <button class="btn-retro btn-white" onclick="viewOrderTimeline('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">🕒 Lacak Timeline</button>
+                        
+                        <!-- Collapsible Detail Section -->
+                        <div id="order-detail-${order.id}" style="display: none; margin-top: 12px; border-top: 1.5px dashed var(--retro-light-gray); padding-top: 12px;" onclick="event.stopPropagation()">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.8rem; line-height: 1.4; margin-bottom: 12px;">
+                                <div>
+                                    <p><strong>Order ID:</strong> <span style="font-family: var(--font-number);">${order.id}</span></p>
+                                    <p><strong>Produk:</strong> ${order.product_title}</p>
+                                    <p><strong>Harga Barang:</strong> <span style="font-family: var(--font-number);">Rp${order.price.toLocaleString('id-ID')}</span></p>
+                                    <p><strong>Ongkos Kirim (${order.courier ? order.courier.toUpperCase() : 'Biteship'}):</strong> <span style="font-family: var(--font-number);">Rp${(order.shipping_cost || 0).toLocaleString('id-ID')}</span></p>
+                                    <p><strong>Total Dana:</strong> <span style="font-family: var(--font-number); font-weight: bold; color: var(--mario-blue);">Rp${(order.price + (order.shipping_cost || 0)).toLocaleString('id-ID')}</span></p>
+                                </div>
+                                <div style="border-left: 1.5px dashed var(--retro-light-gray); padding-left: 16px;">
+                                    <p><strong>Tanggal Transaksi:</strong> ${dateStr}</p>
+                                    <p><strong>Penjual (Seller):</strong> ${order.seller_name}</p>
+                                    <p><strong>Pembeli (Buyer):</strong> ${order.buyer_name}</p>
+                                    <p><strong>No. Resi (Tracking):</strong> ${order.tracking_number ? `<span style="font-family: var(--font-number); background: #F1F5F9; padding: 2px 6px; border: 1px solid #CBD5E1; border-radius: 4px; font-weight: bold;">${order.tracking_number}</span>` : '<span style="color: #94A3B8; font-style: italic;">Belum diinput seller</span>'}</p>
+                                    <p><strong>Status API Gateway:</strong> 
+                                        <span style="font-family: var(--font-retro); font-size: 0.75rem; padding: 2px 6px; border: 1.5px solid var(--retro-dark); border-radius: 4px; background-color: ${apiStatusColor}; color: ${apiStatusTextColor}; font-weight: bold; box-shadow: 1px 1px 0px var(--retro-dark);">
+                                            ${apiStatusLabel}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                                ${order.status === 'disputed' ? `
+                                    <button class="btn-retro btn-red" onclick="switchTab('sengketa-rekber')" style="font-size: 0.75rem; padding: 6px 12px;">⚖️ Buka Dispute Center</button>
+                                ` : ''}
+                                ${isWaitingPayment ? `
+                                    <button class="btn-retro btn-yellow" onclick="handleCheckPaymentAPI('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;">🔄 Cek Status API</button>
+                                    <button class="btn-retro btn-green" onclick="handleAdminConfirmPayment('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">👍 Konfirmasi Bayar</button>
+                                ` : ''}
+                                ${order.status === 'shipping' ? `
+                                    <button class="btn-retro btn-green" onclick="handleAdminCompleteOrder('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">✅ Selesaikan Pesanan</button>
+                                ` : ''}
+                                ${['waiting_payment', 'pending_payment', 'to_ship', 'paid', 'shipping'].includes(order.status) ? `
+                                    <button class="btn-retro btn-red" onclick="handleAdminCancelOrder('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">❌ Batalkan & Refund</button>
+                                ` : ''}
+                                <button class="btn-retro btn-white" onclick="viewOrderTimeline('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">🕒 Lacak Timeline</button>
+                            </div>
                         </div>
                     </div>
                 `;
