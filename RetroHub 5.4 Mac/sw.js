@@ -39,6 +39,11 @@ self.addEventListener('activate', (event) => {
 // Ini ideal untuk marketplace agar barang jualan selalu ter-update secara real-time,
 // namun shell aplikasi tetap terbuka walau offline.
 self.addEventListener('fetch', (event) => {
+  // Hanya tangani request GET dan bypass API requests (/api/)
+  if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
+    return;
+  }
+
   // Hanya tangani request HTTP/HTTPS (hindari chrome-extension:// dll.)
   if (!event.request.url.startsWith(self.location.origin) && !event.request.url.startsWith('https://fonts.')) {
     return;
