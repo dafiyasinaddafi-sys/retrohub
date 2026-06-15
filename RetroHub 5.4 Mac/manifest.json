@@ -1,0 +1,24 @@
+{
+  "name": "RetroHub",
+  "short_name": "RetroHub",
+  "description": "Tempat Kolektor Jual-Beli & Lelang Hobi Mainan Retro",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#E52521",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

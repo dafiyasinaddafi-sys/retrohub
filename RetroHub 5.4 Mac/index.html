@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroHub - Marketplace Hobi & Mainan</title>
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="theme-color" content="#E52521">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
+    <!-- Link External Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* Gaya Tambahan Login Selector di Header */
+        .login-selector-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .login-select {
+            background-color: #FFFFFF;
+            color: var(--retro-dark);
+            border: 2px solid var(--retro-dark);
+            border-radius: 4px;
+            padding: 3px 4px;
+            font-family: var(--font-retro);
+            font-size: 0.7rem;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            max-width: 110px;
+        }
+
+        .login-select:hover {
+            background-color: var(--mario-yellow);
+        }
+
+        .cart-badge {
+            background-color: var(--mario-yellow);
+            color: var(--retro-dark);
+            font-family: var(--font-number);
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 0 4px;
+            border-radius: 3px;
+            margin-left: 2px;
+            border: 1px solid var(--retro-dark);
+        }
+
+        /* Buyout Value Font Number override */
+        .buyout-val {
+            font-family: var(--font-number);
+            font-weight: 700;
+        }
+
+        /* Bid Count Font Number override */
+        .bid-count {
+            font-family: var(--font-number);
+        }
+
+        /* Mobile: sembunyikan label "Login:" dan pangkas select */
+        @media (max-width: 480px) {
+            .login-selector-container span {
+                display: none;
+            }
+            .login-select {
+                max-width: 90px;
+                font-size: 0.62rem;
+                padding: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header dirender dinamis oleh ui.js -->
+    <header></header>
+
+    <div class="container">
+        
+        <!-- 1. Banner Event Slider Otomatis -->
+        <div class="slider-wrapper">
+            <div class="slider-container" id="slider">
+                <!-- Slide 1 -->
+                <div class="slide slide-1">
+                    <h2>RETROHUB LAUNCH EVENT</h2>
+                    <p>Promo Khusus User Baru • Bebas Biaya Rekber!</p>
+                </div>
+                <!-- Slide 2 -->
+                <div class="slide slide-2">
+                    <h2>HOT AUCTION WEEKEND</h2>
+                    <p>Lelang Konsol Retro Mulai dari Rp10.000 saja!</p>
+                </div>
+                <!-- Slide 3 -->
+                <div class="slide slide-3">
+                    <h2>TCG & FIGURE FEST</h2>
+                    <p>Diskon Direct Sale s/d 50% untuk Figure Terpilih</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Search Bar Baru di Bawah Banner -->
+        <div class="search-section">
+            <div class="search-bar-wrapper">
+                <input type="text" class="search-input" id="search-input-field" placeholder="Cari mainan retro, kaset game, TCG, Tamiya, atau nama toko..." onkeydown="if(event.key==='Enter') handleSearch()">
+                <button class="search-btn" onclick="handleSearch()">🔍 Cari</button>
+            </div>
+        </div>
+
+        <!-- 3. Sort & Filter Panel (Shopee-style) -->
+        <div id="sort-filter-panel" style="background: var(--bg-card); border: 2.5px solid var(--retro-dark); border-radius: 6px; box-shadow: 3px 3px 0px var(--retro-dark); padding: 10px 12px; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+            <!-- Sort chips -->
+            <div style="display:flex;gap:6px;align-items:center;flex:1;min-width:0;">
+                <button id="sort-btn-terbaru" class="sort-chip active" onclick="setSortMode('terbaru')">Terbaru</button>
+                <button id="sort-btn-termurah" class="sort-chip" onclick="setSortMode('termurah')">Termurah</button>
+                <button id="sort-btn-termahal" class="sort-chip" onclick="setSortMode('termahal')">Termahal</button>
+            </div>
+            <!-- Filter toggle button -->
+            <button id="filter-toggle-btn" onclick="toggleFilterPanel()" style="font-family:var(--font-retro);font-size:0.72rem;font-weight:700;border:2px solid var(--retro-dark);border-radius:4px;padding:5px 10px;background:white;cursor:pointer;display:flex;align-items:center;gap:4px;box-shadow:2px 2px 0 var(--retro-dark);" title="Filter">
+                ⚙️ Filter <span id="filter-count-badge" style="display:none;background:var(--mario-red);color:white;border-radius:10px;padding:0 5px;font-size:0.65rem;"></span>
+            </button>
+        </div>
+        <!-- Filter panel (hidden by default) -->
+        <div id="filter-panel-expanded" style="display:none;background:var(--bg-card);border:2.5px solid var(--retro-dark);border-radius:6px;box-shadow:3px 3px 0 var(--retro-dark);padding:12px 14px;margin-bottom:16px;">
+            <div style="display:flex;flex-wrap:wrap;gap:16px;">
+                <!-- Kategori -->
+                <div style="flex:1;min-width:180px;">
+                    <div style="font-family:var(--font-retro);font-size:0.7rem;font-weight:700;margin-bottom:6px;">🗂️ Kategori</div>
+                    <div id="filter-categories-list" style="display:flex;flex-wrap:wrap;gap:4px;">
+                        <!-- Diisi JS -->
+                    </div>
+                </div>
+                <!-- Tipe Transaksi -->
+                <div style="flex:0 0 auto;">
+                    <div style="font-family:var(--font-retro);font-size:0.7rem;font-weight:700;margin-bottom:6px;">🏷️ Tipe</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <label style="font-size:0.75rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="filter-type-sale" onchange="applyFilters()" checked style="accent-color:var(--mario-blue);"> Jualan Langsung</label>
+                        <label style="font-size:0.75rem;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="filter-type-lelang" onchange="applyFilters()" checked style="accent-color:var(--mario-blue);"> Lelang</label>
+                    </div>
+                </div>
+                <!-- Rentang Harga -->
+                <div style="flex:0 0 auto;">
+                    <div style="font-family:var(--font-retro);font-size:0.7rem;font-weight:700;margin-bottom:6px;">💲 Harga (Rp)</div>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <input type="number" id="filter-price-min" placeholder="Min" oninput="applyFilters()" style="width:80px;border:2px solid var(--retro-dark);border-radius:4px;padding:4px 6px;font-size:0.72rem;">
+                        <span style="font-size:0.7rem;">–</span>
+                        <input type="number" id="filter-price-max" placeholder="Max" oninput="applyFilters()" style="width:80px;border:2px solid var(--retro-dark);border-radius:4px;padding:4px 6px;font-size:0.72rem;">
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+                <button onclick="resetFilters()" style="font-family:var(--font-retro);font-size:0.7rem;border:2px solid var(--retro-dark);border-radius:4px;padding:4px 10px;background:white;cursor:pointer;box-shadow:2px 2px 0 var(--retro-dark);">Reset Filter</button>
+            </div>
+        </div>
+
+        <!-- 4. Section Lelang Panas (Hot Auctions) -->
+        <div id="container-lelang">
+            <h2 class="section-title">Lelang Segera Berakhir ⏳</h2>
+            <div class="products-grid scrollable-row" id="grid-lelang">
+                <!-- Render Dinamis Kartu Lelang -->
+            </div>
+        </div>
+
+        <!-- 4b. Section Wishlist (hanya muncul jika user login & punya wishlist) -->
+        <div id="container-wishlist" style="display:none;">
+            <h2 class="section-title">❤️ Wishlist-mu <span id="wishlist-count-label" style="font-size:0.75rem;color:#64748B;font-family:var(--font-body);font-weight:400;"></span></h2>
+            <div class="products-grid scrollable-row" id="grid-wishlist"></div>
+        </div>
+
+        <!-- 5. Section Rekomendasi Jualan -->
+        <h2 class="section-title">Rekomendasi Jualan</h2>
+        <div class="products-grid" id="grid-sale">
+            <!-- Render Dinamis Kartu Sale -->
+        </div>
+
+    </div>
+
+    <!-- 6. Footer Ramping (Copyright Kiri, Dukungan Kanan) -->
+    <footer>
+        <div class="footer-copyright">© 2026 RetroHub. · <a href="faq.html" style="color:inherit;opacity:0.7;text-decoration:none;">🛡️ Perlindungan Pembeli</a></div>
+        <a href="#" class="donation-btn">☕ Dukung RetroHub</a>
+    </footer>
+
+    <!-- Muat Database Simulasinya Terlebih Dahulu -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="db.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        // Cek dan expire reservasi produk yang sudah lewat 6 jam
+        if (typeof db !== 'undefined' && db.checkExpiredReservations) {
+            db.checkExpiredReservations();
+        }
+    </script>
+
+    <!-- Script Slider, Render Dinamis, & PWA Registration -->
+    <script>
+        // Render Dynamic Banner Slider
+        function renderBanners() {
+            const slider = document.getElementById('slider');
+            const sliderWrapper = document.querySelector('.slider-wrapper');
+            const banners = db.getBanners();
+
+            if (banners.length === 0) {
+                if (sliderWrapper) sliderWrapper.style.display = 'none';
+                return;
+            }
+
+            if (sliderWrapper) sliderWrapper.style.display = 'block';
+
+            slider.innerHTML = banners.map(b => `
+                <div class="slide" style="background-image: url('${b.image_url}'); background-size: cover; background-position: center; cursor: pointer; padding: 0; position: relative;" onclick="if('${b.link_url || ''}') window.location.href='${b.link_url}'">
+                </div>
+            `).join('');
+
+            const N = banners.length;
+            slider.style.width = `${N * 100}%`;
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.style.width = `${100 / N}%`;
+            });
+
+            if (window.sliderInterval) clearInterval(window.sliderInterval);
+            let currentSlide = 0;
+            
+            if (N > 1) {
+                window.sliderInterval = setInterval(() => {
+                    currentSlide = (currentSlide + 1) % N;
+                    slider.style.transform = `translateX(-${(currentSlide * 100) / N}%)`;
+                }, 3000);
+            } else {
+                slider.style.transform = 'translateX(0)';
+            }
+        }
+
+        // Sort & Filter State
+        let selectedCategoryIds = new Set(); // kosong = semua
+        let currentSortMode = 'terbaru';
+
+        function setSortMode(mode) {
+            currentSortMode = mode;
+            ['terbaru','termurah','termahal'].forEach(m => {
+                const btn = document.getElementById('sort-btn-' + m);
+                if (btn) {
+                    btn.classList.toggle('active', m === mode);
+                }
+            });
+            renderProducts();
+        }
+
+        function toggleFilterPanel() {
+            const panel = document.getElementById('filter-panel-expanded');
+            if (!panel) return;
+            const visible = panel.style.display !== 'none';
+            panel.style.display = visible ? 'none' : 'block';
+            const btn = document.getElementById('filter-toggle-btn');
+            if (btn) btn.style.background = visible ? 'white' : 'var(--mario-yellow)';
+        }
+
+        function applyFilters() {
+            updateFilterBadge();
+            renderProducts();
+        }
+
+        function resetFilters() {
+            selectedCategoryIds.clear();
+            document.querySelectorAll('.filter-cat-chip').forEach(c => c.classList.remove('active'));
+            const typeSale = document.getElementById('filter-type-sale');
+            const typeLelang = document.getElementById('filter-type-lelang');
+            if (typeSale) typeSale.checked = true;
+            if (typeLelang) typeLelang.checked = true;
+            const priceMin = document.getElementById('filter-price-min');
+            const priceMax = document.getElementById('filter-price-max');
+            if (priceMin) priceMin.value = '';
+            if (priceMax) priceMax.value = '';
+            updateFilterBadge();
+            renderProducts();
+        }
+
+        function updateFilterBadge() {
+            let count = 0;
+            if (selectedCategoryIds.size > 0) count += selectedCategoryIds.size;
+            const typeSale = document.getElementById('filter-type-sale');
+            const typeLelang = document.getElementById('filter-type-lelang');
+            if (typeSale && !typeSale.checked) count++;
+            if (typeLelang && !typeLelang.checked) count++;
+            const priceMin = document.getElementById('filter-price-min');
+            const priceMax = document.getElementById('filter-price-max');
+            if (priceMin && priceMin.value) count++;
+            if (priceMax && priceMax.value) count++;
+            const badge = document.getElementById('filter-count-badge');
+            if (badge) {
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'inline' : 'none';
+            }
+        }
+
+        function toggleCategoryFilter(catId) {
+            if (selectedCategoryIds.has(catId)) {
+                selectedCategoryIds.delete(catId);
+            } else {
+                selectedCategoryIds.add(catId);
+            }
+            document.querySelectorAll('.filter-cat-chip').forEach(c => {
+                c.classList.toggle('active', selectedCategoryIds.has(Number(c.dataset.catId)));
+            });
+            applyFilters();
+        }
+
+        // Render header cart count
+        function updateCartBadge() {
+            const cart = db.getCart();
+            const counter = document.getElementById('cart-counter');
+            if (counter) {
+                counter.innerText = cart.length;
+            }
+        }
+
+        // Sinkronisasi header setelah login state berubah
+        function syncLoginDropdown() {
+            if (typeof renderGlobalHeader === 'function') renderGlobalHeader();
+            if (typeof updateChatBadgeGlobal === 'function') updateChatBadgeGlobal();
+        }
+
+        // Ubah Status Login Simulasi (dipanggil dari Dev selector di dropdown)
+        function toggleLoginSession(value) {
+            db.setCurrentUserId(value === 'guest' ? null : value);
+            if (typeof renderGlobalHeader === 'function') renderGlobalHeader();
+            if (typeof updateChatBadgeGlobal === 'function') updateChatBadgeGlobal();
+            renderProducts();
+            
+            if (!value || value === 'guest') {
+                showToast('Status: Guest', 'Anda berselancar sebagai pengunjung anonim.', 'info');
+            } else {
+                const u = db.getProfileById(value);
+                showToast('Login Berhasil ✨', `Selamat datang, @${u ? u.store_name : value}!`, 'success');
+            }
+        }
+
+        // Render Menu Kategori
+        // Render kategori di dalam filter panel (bukan lagi category bar terpisah)
+        function renderCategories() {
+            const list = document.getElementById('filter-categories-list');
+            if (!list) return;
+            const categories = db.getCategories();
+            list.innerHTML = categories.map(cat => `
+                <button class="filter-cat-chip ${selectedCategoryIds.has(cat.id) ? 'active' : ''}"
+                    data-cat-id="${cat.id}"
+                    onclick="toggleCategoryFilter(${cat.id})">
+                    ${cat.icon} ${cat.name}
+                </button>
+            `).join('');
+        }
+
+        // Render Section Wishlist di Homepage
+        function renderWishlistSection() {
+            const container = document.getElementById('container-wishlist');
+            const grid      = document.getElementById('grid-wishlist');
+            const countLbl  = document.getElementById('wishlist-count-label');
+            if (!container || !grid) return;
+
+            const userId = db.getCurrentUserId();
+            if (!userId) { container.style.display = 'none'; return; }
+
+            const items = db.getWishlistProducts(userId);
+            if (items.length === 0) { container.style.display = 'none'; return; }
+
+            container.style.display = 'block';
+            countLbl.textContent = `(${items.length} produk)`;
+            grid.innerHTML = '';
+
+            items.slice(0, 8).forEach(p => {
+                const price = p.price || p.starting_bid || 0;
+                const savedPrice = p._price_at_save || price;
+                const isPriceDrop = savedPrice > 0 && price < savedPrice * 0.95;
+                const badge = p.transaction_type === 'lelang'
+                    ? `<span style="background:var(--mario-red);color:#fff;font-size:0.6rem;padding:2px 6px;border-radius:3px;font-weight:700;">LELANG</span>`
+                    : '';
+                const dropBadge = isPriceDrop
+                    ? `<span style="background:#16A34A;color:#fff;font-size:0.6rem;padding:2px 6px;border-radius:3px;font-weight:700;">↓ TURUN</span>`
+                    : '';
+                const img = p.image_url || (p.photos && p.photos[0]) || 'https://placehold.co/300x200?text=No+Image';
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.style.cursor = 'pointer';
+                card.innerHTML = `
+                    <div style="position:relative;">
+                        <img src="${img}" alt="${p.title}" style="width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:4px 4px 0 0;">
+                        <div style="position:absolute;top:6px;left:6px;display:flex;gap:4px;">${badge}${dropBadge}</div>
+                        <button onclick="event.stopPropagation();if(!db.getCurrentUserId()){showToast('Login Dulu','Silakan login untuk menyimpan ke wishlist.','info');return;}db.toggleWishlist('${p.id}',db.getCurrentUserId());renderWishlistSection();"
+                            style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">❤️</button>
+                    </div>
+                    <div style="padding:8px;">
+                        <div style="font-size:0.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</div>
+                        <div style="font-size:0.85rem;font-weight:700;color:var(--mario-red);font-family:var(--font-number);margin-top:3px;">
+                            Rp${price.toLocaleString('id-ID')}
+                            ${isPriceDrop ? `<span style="font-size:0.65rem;color:#94A3B8;text-decoration:line-through;margin-left:4px;">Rp${savedPrice.toLocaleString('id-ID')}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => { window.location.href = `product.html?id=${p.id}`; });
+                grid.appendChild(card);
+            });
+
+            if (items.length > 8) {
+                const more = document.createElement('div');
+                more.style.cssText = 'display:flex;align-items:center;justify-content:center;min-width:120px;';
+                more.innerHTML = `<button onclick="openWishlistModal()" style="font-family:var(--font-retro);font-size:0.72rem;font-weight:700;border:2px solid var(--retro-dark);border-radius:4px;padding:8px 12px;background:white;cursor:pointer;box-shadow:2px 2px 0 var(--retro-dark);">+${items.length - 8} lainnya →</button>`;
+                grid.appendChild(more);
+            }
+        }
+
+        // Render Grid Produk Jualan & Lelang
+        function toggleWishlistCard(productId, btn) {
+            const userId = db.getCurrentUserId();
+            if (!userId) {
+                showToast('Login Dulu', 'Silakan login untuk menyimpan ke wishlist.', 'info');
+                return;
+            }
+            const result = db.toggleWishlist(productId, userId);
+            if (!result) return;
+            const nowLiked = result.isAdding;
+            // Update hanya tombol yang diklik — tanpa re-render seluruh grid
+            btn.textContent = nowLiked ? '❤️' : '🤍';
+            // Refresh wishlist section di bawah
+            renderWishlistSection();
+            showToast(
+                nowLiked ? 'Wishlist ❤️' : 'Dihapus 🤍',
+                nowLiked ? 'Produk disimpan ke wishlist!' : 'Produk dihapus dari wishlist.',
+                nowLiked ? 'success' : 'info'
+            );
+        }
+
+        function renderProducts(searchQuery = '') {
+            const allProducts = db.getProducts();
+            const gridLelang = document.getElementById('grid-lelang');
+            const gridSale = document.getElementById('grid-sale');
+
+            // Filter out banned seller products
+            const profiles = db.getProfiles();
+            const bannedSellerIds = profiles.filter(p => p.is_seller && p.seller_status === 'active' && p.is_banned).map(p => p.id);
+            const products = allProducts.filter(p => !bannedSellerIds.includes(p.seller_id));
+
+            // Hanya produk aktif
+            let filteredProducts = products.filter(p => p.status === 'active');
+
+            // Filter tipe transaksi
+            const showSale = !document.getElementById('filter-type-sale') || document.getElementById('filter-type-sale').checked;
+            const showLelang = !document.getElementById('filter-type-lelang') || document.getElementById('filter-type-lelang').checked;
+            if (!showSale) filteredProducts = filteredProducts.filter(p => p.transaction_type !== 'sale');
+            if (!showLelang) filteredProducts = filteredProducts.filter(p => p.transaction_type !== 'lelang');
+
+            // Filter kategori (multi-select — kosong = semua)
+            if (selectedCategoryIds.size > 0) {
+                filteredProducts = filteredProducts.filter(p => selectedCategoryIds.has(p.category_id));
+            }
+
+            // Filter harga
+            const priceMinEl = document.getElementById('filter-price-min');
+            const priceMaxEl = document.getElementById('filter-price-max');
+            const priceMin = priceMinEl && priceMinEl.value ? Number(priceMinEl.value) : null;
+            const priceMax = priceMaxEl && priceMaxEl.value ? Number(priceMaxEl.value) : null;
+            if (priceMin !== null) filteredProducts = filteredProducts.filter(p => {
+                const eff = p.transaction_type === 'lelang' ? (p.starting_bid || 0) : (p.price || 0);
+                return eff >= priceMin;
+            });
+            if (priceMax !== null) filteredProducts = filteredProducts.filter(p => {
+                const eff = p.transaction_type === 'lelang' ? (p.starting_bid || 0) : (p.price || 0);
+                return eff <= priceMax;
+            });
+
+            // Filter pencarian
+            if (searchQuery && searchQuery.trim() !== '') {
+                const q = searchQuery.trim().toLowerCase();
+                const tokens = q.split(/\s+/).filter(t => t.length > 0);
+                const tokenMatch = (str) => tokens.every(tok => str.toLowerCase().includes(tok));
+                const qNoSpace = q.replace(/\s+/g, '').toLowerCase();
+                filteredProducts = filteredProducts.filter(p => {
+                    const inTitle = tokenMatch(p.title);
+                    const inDesc  = tokenMatch(p.description || '');
+                    const inSeller = tokenMatch(p.seller_name || '');
+                    const inSellerNoSpace = p.seller_name && p.seller_name.toLowerCase().replace(/\s+/g,'').includes(qNoSpace);
+                    return inTitle || inDesc || inSeller || inSellerNoSpace;
+                });
+            }
+
+            // Pisahkan tipe
+            let lelangProducts = filteredProducts.filter(p => p.transaction_type === 'lelang');
+            let saleProducts = filteredProducts.filter(p => p.transaction_type === 'sale');
+
+            // Sorting
+            function sortFn(a, b) {
+                if (currentSortMode === 'termurah') {
+                    const pa = a.transaction_type === 'lelang' ? (a.starting_bid || 0) : (a.price || 0);
+                    const pb = b.transaction_type === 'lelang' ? (b.starting_bid || 0) : (b.price || 0);
+                    return pa - pb;
+                } else if (currentSortMode === 'termahal') {
+                    const pa = a.transaction_type === 'lelang' ? (a.starting_bid || 0) : (a.price || 0);
+                    const pb = b.transaction_type === 'lelang' ? (b.starting_bid || 0) : (b.price || 0);
+                    return pb - pa;
+                } else {
+                    // terbaru: created_at desc; lelang juga sort soonest-end first
+                    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+                }
+            }
+
+            if (currentSortMode === 'terbaru') {
+                // Lelang: soonest end first (default perilaku lelang)
+                lelangProducts = lelangProducts.sort((a, b) => {
+                    const timeA = a.auction_end_time ? new Date(a.auction_end_time) : new Date(Date.now() + 24 * 3600 * 1000);
+                    const timeB = b.auction_end_time ? new Date(b.auction_end_time) : new Date(Date.now() + 24 * 3600 * 1000);
+                    return timeA - timeB;
+                });
+                saleProducts = saleProducts.sort(sortFn);
+            } else {
+                lelangProducts = lelangProducts.sort(sortFn);
+                saleProducts = saleProducts.sort(sortFn);
+            }
+
+            // Helper kalkulasi sisa waktu
+            function getRemainingTimeStr(endTimeIso) {
+                if (!endTimeIso) return '⏳ 12j 00m';
+                const end = new Date(endTimeIso);
+                const now = new Date();
+                const diffMs = end - now;
+                if (diffMs <= 0) return '⏳ Berakhir';
+                
+                const diffHrs = Math.floor(diffMs / (3600 * 1000));
+                const diffMins = Math.floor((diffMs % (3600 * 1000)) / (60 * 1000));
+                
+                if (diffHrs > 0) {
+                    return `⏳ ${diffHrs}j ${diffMins}m`;
+                } else {
+                    return `⏳ ${diffMins}m`;
+                }
+            }
+
+            // Render Kartu Lelang
+            const containerLelang = document.getElementById('container-lelang');
+            if (lelangProducts.length === 0) {
+                if (containerLelang) containerLelang.style.display = 'none';
+            } else {
+                if (containerLelang) containerLelang.style.display = 'block';
+                gridLelang.innerHTML = lelangProducts.map(p => {
+                    const bids = db.getBidsByProductId(p.id);
+                    const currentBid = bids.length > 0 ? bids[0].amount : p.starting_bid;
+                    const timeStr = getRemainingTimeStr(p.auction_end_time);
+                    
+                    return `
+                        <div class="product-card" onclick="goToProductDetail('${p.id}')">
+                            <div class="type-badge-lelang">LELANG</div>
+                            <div class="time-badge">${timeStr}</div>
+                            <button class="wishlist-heart-btn" onclick="event.stopPropagation();toggleWishlistCard('${p.id}',this);" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">${db.isWishlisted('${p.id}', db.getCurrentUserId()) ? '❤️' : '🤍'}</button>
+                            <div class="image-container">
+                                <img src="${p.image_url}" alt="${p.title}">
+                            </div>
+                            <div class="card-content">
+                                <div class="tags-row">
+                                    <span class="tag mib">${p.condition}</span>
+                                    <span class="tag" style="border-color: var(--mario-blue); color: var(--mario-blue);">${p.sub_category}</span>
+                                </div>
+                                <div class="seller-name" onclick="event.stopPropagation();">
+                                    <a href="store.html?seller_id=${p.seller_id}" style="color: inherit; text-decoration: underline; font-weight: bold;">${p.seller_name}</a>
+                                </div>
+                                <h3 class="product-title">${p.title}</h3>
+                                <div class="buyout-price">
+                                    <span>Buyout:</span>
+                                    <span class="buyout-val">Rp${p.buyout_price.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="price-container">
+                                        <span class="price-label">Bid Terkini</span>
+                                        <span class="price-value">Rp${currentBid.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <span class="meta-info"><span class="bid-count">${bids.length} Bid</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render Kartu Sale
+            if (saleProducts.length === 0) {
+                gridSale.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; font-size: 0.9rem;">Tidak ada barang jualan yang aktif.</p>`;
+            } else {
+                gridSale.innerHTML = saleProducts.map(p => {
+                    const hasDiscount = p.discount_percent && p.discount_percent > 0;
+                    const discountedPrice = hasDiscount ? p.price - (p.price * p.discount_percent / 100) : p.price;
+                    const discountBadge = hasDiscount ? `<div class="discount-badge">-${p.discount_percent}%</div>` : '';
+                    const slashedPrice = hasDiscount ? `<span style="text-decoration: line-through; color: #64748B; font-size: 0.7rem; margin-left: 6px; font-family: var(--font-number);">Rp${p.price.toLocaleString('id-ID')}</span>` : '';
+
+                    return `
+                        <div class="product-card" onclick="goToProductDetail('${p.id}')">
+                            ${discountBadge}
+                            <button class="wishlist-heart-btn" onclick="event.stopPropagation();toggleWishlistCard('${p.id}',this);" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">${db.isWishlisted('${p.id}', db.getCurrentUserId()) ? '❤️' : '🤍'}</button>
+                            <div class="image-container">
+                                <img src="${p.image_url}" alt="${p.title}">
+                            </div>
+                            <div class="card-content">
+                                <div class="tags-row">
+                                    <span class="tag mib">${p.condition}</span>
+                                    <span class="tag" style="border-color: var(--mario-blue); color: var(--mario-blue);">${p.sub_category}</span>
+                                </div>
+                                <div class="seller-name" onclick="event.stopPropagation();">
+                                    <a href="store.html?seller_id=${p.seller_id}" style="color: inherit; text-decoration: underline; font-weight: bold;">${p.seller_name}</a>
+                                </div>
+                                <h3 class="product-title">${p.title}</h3>
+                                <div class="card-footer">
+                                    <div class="price-container">
+                                        <span class="price-label">Harga</span>
+                                        <span class="price-value">Rp${discountedPrice.toLocaleString('id-ID')}</span>
+                                        ${slashedPrice}
+                                    </div>
+                                    <span class="meta-info">Tersedia</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // filterByCategory tetap ada untuk backward-compat (dipanggil dari tempat lain)
+        function filterByCategory(categoryId) {
+            if (categoryId === null) {
+                selectedCategoryIds.clear();
+            } else {
+                toggleCategoryFilter(categoryId);
+                return;
+            }
+            updateFilterBadge();
+            renderCategories();
+            renderSellerResults(null);
+            renderProducts();
+        }
+
+
+        // Fungsi Aksi Pencarian
+        function handleSearch() {
+            const searchVal = document.getElementById('search-input-field').value.trim();
+            localStorage.setItem('retrohub_index_search_query', searchVal);
+            if (!searchVal) {
+                renderSellerResults(null);
+                renderProducts('');
+                return;
+            }
+
+            // --- Fuzzy search seller ---
+            const q = searchVal.toLowerCase();
+            const qNoSpace = q.replace(/\s+/g, '');
+            const tokens = q.split(/\s+/).filter(t => t.length > 0);
+            const tokenMatch = (str) => tokens.every(tok => str.toLowerCase().includes(tok));
+
+            const allProfiles = db.getProfiles().filter(p => p.is_seller && p.seller_status === 'active' && !p.is_banned);
+            const matchedSellers = allProfiles.filter(p => {
+                const name = (p.store_name || '').toLowerCase();
+                const nameNoSpace = name.replace(/\s+/g, '');
+                return tokenMatch(name) || nameNoSpace.includes(qNoSpace);
+            });
+
+            renderSellerResults(matchedSellers.length > 0 ? matchedSellers : null);
+            renderProducts(searchVal);
+        }
+
+        // Render hasil pencarian seller di atas grid produk
+        function renderSellerResults(sellers) {
+            let container = document.getElementById('seller-search-results');
+            if (!sellers || sellers.length === 0) {
+                if (container) container.remove();
+                return;
+            }
+
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'seller-search-results';
+                container.style.cssText = 'margin-bottom:16px;';
+                // Sisipkan sebelum container-lelang
+                const beforeEl = document.getElementById('container-lelang') || document.getElementById('grid-sale');
+                if (beforeEl && beforeEl.parentNode) {
+                    beforeEl.parentNode.insertBefore(container, beforeEl);
+                }
+            }
+
+            container.innerHTML = `
+                <div class="section-title" style="margin-bottom:8px;">🏪 Toko Ditemukan</div>
+                <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;">
+                    ${sellers.map(s => `
+                        <a href="store.html?seller_id=${s.id}" style="text-decoration:none;flex-shrink:0;">
+                            <div style="background:#FFFFFF;border:2.5px solid var(--retro-dark);border-radius:8px;box-shadow:3px 3px 0px var(--retro-dark);padding:10px 14px;min-width:140px;max-width:160px;text-align:center;transition:transform 0.1s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                                <div style="font-size:1.8rem;margin-bottom:4px;">🏪</div>
+                                <div style="font-family:var(--font-retro);font-size:0.75rem;font-weight:700;color:var(--retro-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${s.store_name}</div>
+                                <div style="font-size:0.62rem;color:#64748B;margin-top:2px;">${s.address_kecamatan || 'Indonesia'}</div>
+                                <div style="margin-top:6px;background:var(--mario-blue);color:white;font-family:var(--font-retro);font-size:0.62rem;border-radius:3px;padding:3px 6px;border:1.5px solid var(--retro-dark);">Lihat Toko →</div>
+                            </div>
+                        </a>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Fungsi Navigasi ke Halaman Detail
+        function goToProductDetail(id) {
+            window.location.href = `product.html?id=${id}`;
+        }
+
+        // Jalankan render awal saat beranda dimuat
+        renderGlobalHeader();
+        updateCartBadge();
+        renderBanners();
+
+        // Render kategori di filter panel
+        renderCategories();
+
+        // Restore search state
+        const savedSearchVal = localStorage.getItem('retrohub_index_search_query') || '';
+        const searchField = document.getElementById('search-input-field');
+        if (searchField && savedSearchVal) {
+            searchField.value = savedSearchVal;
+            handleSearch();
+        } else {
+            renderProducts();
+        }
+
+        // Render wishlist section jika user login
+        renderWishlistSection();
+        updateChatBadgeGlobal();
+
+        // ── REALTIME: produk/kategori baru langsung muncul ─────────
+        window.addEventListener('retrohub_product_added', () => { renderProducts(); });
+        window.addEventListener('retrohub_product_updated', () => { renderProducts(); });
+        window.addEventListener('retrohub_product_deleted', () => { renderProducts(); });
+        window.addEventListener('retrohub_categories_updated', () => { renderCategories(); });
+        window.addEventListener('retrohub_sync_complete', () => { renderProducts(); });
+
+        // Registrasi Service Worker PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((reg) => {
+                        console.log('Service Worker RetroHub terdaftar pada scope: ', reg.scope);
+                    })
+                    .catch((err) => {
+                        console.error('Pendaftaran Service Worker gagal: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

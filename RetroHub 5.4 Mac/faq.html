@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perlindungan Pembeli — RetroHub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <style>
+        body { background: #F8FAFC; }
+        .faq-wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+        .faq-hero { background: var(--mario-red); color: #fff; border-radius: 8px; border: 2.5px solid var(--retro-dark); box-shadow: 4px 4px 0 var(--retro-dark); padding: 28px 24px; margin-bottom: 24px; text-align: center; }
+        .faq-hero h1 { font-family: var(--font-retro); font-size: 1.4rem; margin: 0 0 8px; }
+        .faq-hero p { font-size: 0.85rem; opacity: 0.9; margin: 0; line-height: 1.6; }
+        .faq-card { background: #fff; border: 2px solid var(--retro-dark); border-radius: 8px; box-shadow: 3px 3px 0 var(--retro-dark); padding: 20px 22px; margin-bottom: 16px; }
+        .faq-card h2 { font-family: var(--font-retro); font-size: 0.95rem; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+        .faq-card p, .faq-card li { font-size: 0.82rem; line-height: 1.7; color: #374151; margin: 0; }
+        .faq-card ul { padding-left: 18px; margin: 8px 0 0; }
+        .faq-card li { margin-bottom: 4px; }
+        .badge-green { background: #16A34A; color: #fff; font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+        .faq-steps { counter-reset: step; list-style: none; padding: 0; margin: 10px 0 0; }
+        .faq-steps li { counter-increment: step; display: flex; gap: 12px; margin-bottom: 12px; font-size: 0.82rem; color: #374151; line-height: 1.5; }
+        .faq-steps li::before { content: counter(step); background: var(--mario-red); color: #fff; font-weight: 700; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+        .faq-back { font-family: var(--font-retro); font-size: 0.75rem; color: var(--mario-red); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+        .faq-back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div id="global-header"></div>
+
+    <div class="faq-wrap">
+        <a href="index.html" class="faq-back">← Kembali ke Beranda</a>
+
+        <div class="faq-hero">
+            <h1>🛡️ Perlindungan Pembeli RetroHub</h1>
+            <p>Setiap transaksi di RetroHub dilindungi sistem rekber (rekening bersama).<br>Uangmu aman — tidak langsung ke seller sampai barang kamu terima.</p>
+        </div>
+
+        <!-- 1. Dana Aman -->
+        <div class="faq-card">
+            <h2>💰 Dana Aman di Tangan Kami <span class="badge-green">REKBER</span></h2>
+            <p>Setiap pembayaran yang kamu lakukan <strong>tidak langsung diteruskan ke seller</strong>. Dana ditahan oleh sistem rekber RetroHub hingga kamu mengkonfirmasi barang diterima dalam kondisi baik. Seller baru menerima dana setelah transaksi dinyatakan selesai.</p>
+        </div>
+
+        <!-- 2. Wajib Video Unboxing -->
+        <div class="faq-card">
+<h2>🎥 Wajib Video Unboxing</h2>
+            <p>Untuk melindungi hak kamu sebagai pembeli, setiap penerimaan barang <strong>wajib direkam dalam satu video unboxing tanpa jeda dan tanpa dipotong</strong>, mulai dari kondisi paket belum dibuka hingga seluruh isi paket terlihat jelas.</p>
+            <ul>
+                <li>Video harus merekam kondisi fisik luar paket sebelum dibuka</li>
+                <li>Proses membuka paket tidak boleh terputus atau diedit</li>
+                <li>Seluruh isi paket harus terlihat jelas di akhir video</li>
+                <li>Video ini adalah <strong>satu-satunya bukti sah</strong> jika terjadi sengketa kondisi barang</li>
+            </ul>
+        </div>
+
+        <!-- 3. Alur Proteksi -->
+        <div class="faq-card">
+            <h2>🔄 Alur Perlindungan Transaksi</h2>
+            <ol class="faq-steps">
+                <li>Kamu melakukan pembayaran — dana masuk ke rekber RetroHub, bukan ke seller</li>
+                <li>Seller mengemas barang dan merekam video packing, lalu mengirim dengan kurir</li>
+                <li>Barang tiba — kamu merekam video unboxing sebelum membuka paket</li>
+                <li>Jika barang sesuai, konfirmasi penerimaan — dana baru diteruskan ke seller</li>
+                <li>Jika ada masalah, ajukan dispute dalam 2×24 jam setelah barang tiba</li>
+            </ol>
+        </div>
+
+        <!-- 4. Sistem Dispute -->
+        <div class="faq-card">
+            <h2>⚖️ Sistem Dispute & Komplain</h2>
+            <p>Jika barang tidak sesuai deskripsi, tidak datang, atau rusak, kamu dapat mengajukan komplain dalam waktu <strong>2×24 jam</strong> setelah barang diterima. Proses penyelesaian:</p>
+            <ul>
+                <li>Admin RetroHub akan meninjau bukti dari kedua pihak secara adil dan netral</li>
+                <li>Bukti video unboxing dan foto kondisi barang menjadi dasar keputusan</li>
+                <li>Keputusan admin bersifat final dan mengikat kedua belah pihak</li>
+                <li>Proses investigasi diselesaikan maksimal dalam 3 hari kerja</li>
+            </ul>
+        </div>
+
+        <!-- 5. Pengembalian Dana -->
+        <div class="faq-card">
+            <h2>💸 Pengembalian Dana</h2>
+            <p>Jika hasil investigasi membuktikan kesalahan ada di pihak seller, <strong>dana akan dikembalikan penuh ke wallet RetroHub-mu dalam 1×24 jam</strong> setelah keputusan admin dijatuhkan. Dana di wallet dapat ditarik ke rekening bank atau e-wallet kapan saja.</p>
+        </div>
+
+        <!-- 6. Seller Terverifikasi -->
+        <div class="faq-card">
+            <h2>✅ Seller Terverifikasi</h2>
+            <p>Setiap seller di RetroHub telah melalui proses verifikasi identitas sebelum diizinkan berjualan:</p>
+            <ul>
+                <li>Verifikasi KTP asli dan foto selfie bersama KTP</li>
+                <li>Review manual oleh tim admin RetroHub</li>
+                <li>Seller dengan rekam jejak buruk atau poin penalti tinggi ditangguhkan otomatis oleh sistem</li>
+                <li>Riwayat transaksi dan rating seller dapat dilihat secara publik di halaman toko</li>
+            </ul>
+        </div>
+
+        <!-- 7. FAQ Cepat -->
+        <div class="faq-card">
+            <h2>❓ Pertanyaan Umum</h2>
+            <ul>
+                <li><strong>Berapa lama batas waktu konfirmasi penerimaan?</strong><br>Setelah kurir menandai paket terkirim, kamu punya 3 hari untuk mengkonfirmasi. Jika tidak ada respons, sistem akan otomatis menyelesaikan transaksi.</li>
+                <li style="margin-top:10px;"><strong>Apa yang terjadi jika barang tidak sampai?</strong><br>Ajukan dispute dan lampirkan bukti (screenshot tracking). Admin akan menghubungi pihak kurir dan memproses pengembalian dana jika terbukti barang hilang.</li>
+                <li style="margin-top:10px;"><strong>Apakah barang lelang juga dilindungi?</strong><br>Ya. Semua transaksi di RetroHub — baik lelang maupun direct sale — dilindungi sistem rekber yang sama.</li>
+            </ul>
+        </div>
+
+        <div style="text-align:center;margin-top:24px;font-size:0.78rem;color:#94A3B8;">
+            Ada pertanyaan lain? Hubungi admin melalui menu <strong>Bantuan & Support</strong> di aplikasi.
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-copyright">© 2026 RetroHub. · <a href="faq.html" style="color:inherit;opacity:0.7;text-decoration:none;">🛡️ Perlindungan Pembeli</a></div>
+    </footer>
+
+    <script src="db.js"></script>
+    <script src="ui.js"></script>
+</body>
+</html>
