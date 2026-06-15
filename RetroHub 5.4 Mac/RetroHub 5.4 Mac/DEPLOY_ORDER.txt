@@ -1,0 +1,12 @@
+URUTAN DEPLOY (PENTING):
+========================
+1. Jalankan SUPABASE_FIX_v2_ENUM_REALTIME.sql  (jika belum)
+   → Fix enum cancelled/expired/refunded + aktifkan Realtime
+
+2. Jalankan SUPABASE_FIX_v3_STOCK.sql
+   → Fix RLS products + RPC atomic stock decrement/increment
+
+3. Deploy semua file HTML/JS ke Cloudflare Pages
+   (replace db.js, ui.js, seller.html, admin.html)
+
+4. Refresh SEMUA device/tab setelah deploy

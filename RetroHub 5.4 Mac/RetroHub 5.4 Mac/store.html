@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroHub - Toko Penjual</title>
+    <!-- PWA Manifest & Theme Color -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="theme-color" content="#E52521">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
+    <!-- Link External Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* Profile Store Banner Styles */
+        .store-header-card {
+            background-color: var(--bg-card);
+            border: 3px solid var(--retro-dark);
+            border-radius: 6px;
+            box-shadow: 4px 4px 0px var(--retro-dark);
+            padding: 20px;
+            margin: 16px 0 24px 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .store-logo {
+            width: 80px;
+            height: 80px;
+            background-color: var(--mario-blue);
+            color: #FFFFFF;
+            font-family: var(--font-retro);
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--retro-dark);
+            border-radius: 6px;
+            box-shadow: 3px 3px 0px var(--retro-dark);
+            text-shadow: 2px 2px 0px var(--retro-dark);
+        }
+
+        .store-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .store-name-title {
+            font-family: var(--font-retro);
+            font-size: 1.6rem;
+            color: var(--retro-dark);
+            margin: 0;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+        }
+
+        .store-meta {
+            font-size: 0.8rem;
+            color: #475569;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .store-banned-alert {
+            background-color: var(--mario-red);
+            color: #FFFFFF;
+            border: 2px solid var(--retro-dark);
+            border-radius: 6px;
+            box-shadow: 3px 3px 0px var(--retro-dark);
+            padding: 16px;
+            font-family: var(--font-retro);
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 1.1rem;
+        }
+        
+        .buyout-val {
+            font-family: var(--font-number);
+            font-weight: 700;
+        }
+
+        .bid-count {
+            font-family: var(--font-number);
+        }
+
+        @media (max-width: 768px) {
+            .store-header-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+                padding: 16px;
+            }
+            .store-meta {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Sempit Merah Mario -->
+    <header></header>
+
+    <div class="container">
+        
+        <!-- Warning Banner jika Toko Diblokir -->
+        <div id="banned-store-alert" class="store-banned-alert" style="display: none;">
+            🚫 TOKO INI SEDANG DITANGGUHKAN / BLOKIR OLEH ADMIN RETROHUB 🚫
+        </div>
+
+        <!-- Banner Kepala Toko -->
+        <div class="store-header-card" id="store-profile-card">
+            <div class="store-logo" id="store-logo-initial">S</div>
+            <div class="store-info">
+                <h2 class="store-name-title" id="store-name-text">@NamaToko</h2>
+                <div style="font-size: 0.85rem; font-weight: bold; color: #64748B;" id="store-owner-text">Pemilik: -</div>
+                <div class="store-meta" style="margin-top: 4px;">
+                    <a id="store-rating-text" href="reviews.html?seller_id=seller-1" style="font-size:0.85rem;font-weight:700;color:var(--mario-blue,#002FBE);text-decoration:none;display:inline-flex;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:border-color 0.15s;" onmouseover="this.style.borderBottomColor='var(--mario-blue)'" onmouseout="this.style.borderBottomColor='transparent'">⭐ 4.5 (10 Ulasan)</a>
+                    <span>•</span>
+                    <span id="store-location-text">📍 Kecamatan, Kab/Kota</span>
+                    <span>•</span>
+                    <button id="store-chat-btn" class="btn-retro btn-yellow" style="font-size: 0.7rem; padding: 4px 10px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer;">
+                        💬 Chat Penjual
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar Toko -->
+        <div class="search-section" id="store-search-section" style="margin-bottom: 24px;">
+            <div class="search-bar-wrapper">
+                <input type="text" id="store-search-input" class="search-input" placeholder="Cari produk di toko ini..." oninput="handleStoreProductSearch()">
+                <button class="search-btn" onclick="handleStoreProductSearch()">🔍 Cari</button>
+            </div>
+        </div>
+
+        <!-- Grid Produk Jualan Penjual -->
+        <div id="container-sale">
+            <div class="section-title">📦 Barang Jualan Toko</div>
+            <div class="products-grid" id="grid-sale">
+                <!-- Diisi dinamis -->
+            </div>
+        </div>
+
+        <!-- Grid Produk Lelang Penjual -->
+        <div id="container-lelang" style="margin-top: 24px;">
+            <div class="section-title">🔨 Lelang Aktif Toko</div>
+            <div class="products-grid" id="grid-lelang">
+                <!-- Diisi dinamis -->
+            </div>
+        </div>
+
+        <!-- Grid Histori Penjualan (Habis / Berakhir) -->
+        <div id="container-history" style="margin-top: 24px;">
+            <div class="section-title">⌛ Histori Penjualan (Habis / Berakhir)</div>
+            <div class="products-grid" id="grid-history">
+                <!-- Diisi dinamis -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-copyright">© 2026 RetroHub.</div>
+        <a href="#" class="donation-btn">☕ Dukung RetroHub</a>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="db.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        // Ambil seller_id dari parameter URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sellerId = urlParams.get('seller_id') || 'seller-1';
+
+        // Sinkronisasi Sesi Login
+        function toggleLoginSession(value) {
+            db.setCurrentUserId(value);
+            renderGlobalHeader();
+            if (typeof updateChatBadgeGlobal === 'function') {
+                updateChatBadgeGlobal();
+            }
+            renderStoreProfile();
+        }
+
+        // Helper kalkulasi sisa waktu
+        function getRemainingTimeStr(endTimeIso) {
+            if (!endTimeIso) return '⏳ 12j 00m';
+            const end = new Date(endTimeIso);
+            const now = new Date();
+            const diffMs = end - now;
+            if (diffMs <= 0) return '⏳ Berakhir';
+            
+            const diffHrs = Math.floor(diffMs / (3600 * 1000));
+            const diffMins = Math.floor((diffMs % (3600 * 1000)) / (60 * 1000));
+            
+            if (diffHrs > 0) {
+                return `⏳ ${diffHrs}j ${diffMins}m`;
+            } else {
+                return `⏳ ${diffMins}m`;
+            }
+        }
+
+        // Render data toko & katalog
+        function toggleWishlistCard(productId, btn) {
+            const userId = db.getCurrentUserId();
+            if (!userId) {
+                showToast('Login Dulu', 'Silakan login untuk menyimpan ke wishlist.', 'info');
+                return;
+            }
+            const result = db.toggleWishlist(productId, userId);
+            if (!result) return;
+            const nowLiked = result.isAdding;
+            btn.textContent = nowLiked ? '❤️' : '🤍';
+            showToast(
+                nowLiked ? 'Wishlist ❤️' : 'Dihapus 🤍',
+                nowLiked ? 'Produk disimpan ke wishlist!' : 'Produk dihapus dari wishlist.',
+                nowLiked ? 'success' : 'info'
+            );
+        }
+
+        function renderStoreProfile() {
+            const seller = db.getProfileById(sellerId);
+            
+            if (!seller) {
+                document.getElementById('store-profile-card').innerHTML = `
+                    <div style="text-align: center; width: 100%; padding: 20px; font-family: var(--font-retro);">
+                        ❌ Penjual Tidak Ditemukan!
+                    </div>
+                `;
+                document.getElementById('container-sale').style.display = 'none';
+                document.getElementById('container-lelang').style.display = 'none';
+                document.getElementById('container-history').style.display = 'none';
+                return;
+            }
+
+            // Render Banner Info Toko
+            const initial = seller.store_name ? seller.store_name.charAt(0).toUpperCase() : 'S';
+            document.getElementById('store-logo-initial').innerText = initial;
+            document.getElementById('store-name-text').innerText = `@${seller.store_name}`;
+            document.getElementById('store-owner-text').innerText = `Pemilik: ${seller.full_name}`;
+            
+            const reviewsCount = seller.reviews_count || 0;
+            const ratingEl = document.getElementById('store-rating-text');
+            if (ratingEl) {
+                if (reviewsCount > 0) {
+                    const ratingVal = seller.rating || 0;
+                    ratingEl.textContent = `⭐ ${ratingVal.toFixed(1)} (${reviewsCount} Ulasan)`;
+                    ratingEl.style.color = 'var(--mario-blue,#002FBE)';
+                } else {
+                    ratingEl.textContent = `Belum ada ulasan`;
+                    ratingEl.style.color = '#64748B';
+                }
+                ratingEl.href = `reviews.html?seller_id=${sellerId}`;
+            }
+            document.getElementById('store-location-text').innerText = `📍 ${seller.address_kecamatan || 'Menteng'} (${seller.address_kelurahan || 'Gondangdia'})`;
+            // Event listener chat privat
+            const chatBtn = document.getElementById('store-chat-btn');
+            if (chatBtn) {
+                const newChatBtn = chatBtn.cloneNode(true);
+                chatBtn.parentNode.replaceChild(newChatBtn, chatBtn);
+                newChatBtn.addEventListener('click', () => {
+                    const currentUserId = db.getCurrentUserId();
+                    if (!currentUserId) {
+                        showAlert("Akses Terbatas ⚠️", "Silakan login sebagai Pembeli terlebih dahulu untuk menggunakan fitur Chat!");
+                        return;
+                    }
+                    if (currentUserId === sellerId) {
+                        showAlert("Info ℹ️", "Ini adalah toko Anda sendiri.");
+                        return;
+                    }
+                    openPrivateChat(sellerId);
+                });
+            }
+
+            // Handle status blokir (ban)
+            const isBanned = seller.is_banned || false;
+            const bannedAlert = document.getElementById('banned-store-alert');
+            const searchSection = document.getElementById('store-search-section');
+            const gridSale = document.getElementById('grid-sale');
+            const gridLelang = document.getElementById('grid-lelang');
+
+            if (isBanned) {
+                bannedAlert.style.display = 'block';
+                if (searchSection) searchSection.style.display = 'none';
+                document.getElementById('store-profile-card').style.borderLeft = '6px solid var(--mario-red)';
+                gridSale.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; padding: 20px; font-size: 0.9rem;">Katalog tidak tersedia. Akun penjual sedang ditangguhkan.</p>`;
+                gridLelang.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; padding: 20px; font-size: 0.9rem;">Katalog tidak tersedia. Akun penjual sedang ditangguhkan.</p>`;
+                document.getElementById('container-history').style.display = 'none';
+                return;
+            }
+
+            bannedAlert.style.display = 'none';
+            if (searchSection) searchSection.style.display = 'block';
+            document.getElementById('store-profile-card').style.borderLeft = 'none';
+            document.getElementById('container-history').style.display = 'block';
+
+            // Ambil search query
+            const searchInput = document.getElementById('store-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            // Ambil produk dan saring khusus milik seller ini yang aktif
+            let products = db.getProducts().filter(p => p.seller_id === sellerId && p.status === 'active');
+
+            // Saring produk berdasarkan query pencarian jika ada
+            if (searchQuery) {
+                products = products.filter(p => 
+                    (p.title && p.title.toLowerCase().includes(searchQuery)) ||
+                    (p.description && p.description.toLowerCase().includes(searchQuery)) ||
+                    (p.sub_category && p.sub_category.toLowerCase().includes(searchQuery))
+                );
+            }
+            const saleProducts = products.filter(p => p.transaction_type === 'sale');
+            const lelangProducts = products.filter(p => p.transaction_type === 'lelang');
+
+            // 1. Render Jualan Langsung (Sale)
+            if (saleProducts.length === 0) {
+                gridSale.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; padding: 20px; font-size: 0.85rem;">Toko ini belum memiliki barang jualan aktif.</p>`;
+            } else {
+                gridSale.innerHTML = saleProducts.map(p => {
+                    const hasDiscount = p.discount_percent && p.discount_percent > 0;
+                    const discountedPrice = hasDiscount ? p.price - (p.price * p.discount_percent / 100) : p.price;
+                    const discountBadge = hasDiscount ? `<div class="discount-badge">-${p.discount_percent}%</div>` : '';
+                    const slashedPrice = hasDiscount ? `<span style="text-decoration: line-through; color: #64748B; font-size: 0.7rem; margin-left: 6px; font-family: var(--font-number);">Rp${p.price.toLocaleString('id-ID')}</span>` : '';
+
+                    return `
+                        <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+                            ${discountBadge}
+                            <button onclick="event.stopPropagation();toggleWishlistCard('${p.id}',this);" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">${db.isWishlisted('${p.id}', db.getCurrentUserId()) ? '❤️' : '🤍'}</button>
+                            <div class="image-container">
+                                <img src="${p.image_url}" alt="${p.title}">
+                            </div>
+                            <div class="card-content">
+                                <div class="tags-row">
+                                    <span class="tag mib">${p.condition}</span>
+                                    <span class="tag" style="border-color: var(--mario-blue); color: var(--mario-blue);">${p.sub_category}</span>
+                                </div>
+                                <div class="seller-name">${p.seller_name}</div>
+                                <h3 class="product-title">${p.title}</h3>
+                                <div class="card-footer">
+                                    <div class="price-container">
+                                        <span class="price-label">Harga</span>
+                                        <span class="price-value">Rp${discountedPrice.toLocaleString('id-ID')}</span>
+                                        ${slashedPrice}
+                                    </div>
+                                    <span class="meta-info">Tersedia</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 2. Render Lelang (Auction)
+            if (lelangProducts.length === 0) {
+                gridLelang.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; padding: 20px; font-size: 0.85rem;">Toko ini belum memiliki lelang aktif.</p>`;
+            } else {
+                gridLelang.innerHTML = lelangProducts.map(p => {
+                    const bids = db.getBidsByProductId(p.id);
+                    const currentBid = bids.length > 0 ? bids[0].amount : p.starting_bid;
+                    const timeStr = getRemainingTimeStr(p.auction_end_time);
+                    
+                    return `
+                        <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'">
+                            <div class="type-badge-lelang">LELANG</div>
+                            <div class="time-badge">${timeStr}</div>
+                            <button onclick="event.stopPropagation();toggleWishlistCard('${p.id}',this);" style="position:absolute;top:6px;right:6px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">${db.isWishlisted('${p.id}', db.getCurrentUserId()) ? '❤️' : '🤍'}</button>
+                            <div class="image-container">
+                                <img src="${p.image_url}" alt="${p.title}">
+                            </div>
+                            <div class="card-content">
+                                <div class="tags-row">
+                                    <span class="tag mib">${p.condition}</span>
+                                    <span class="tag" style="border-color: var(--mario-blue); color: var(--mario-blue);">${p.sub_category}</span>
+                                </div>
+                                <div class="seller-name">${p.seller_name}</div>
+                                <h3 class="product-title">${p.title}</h3>
+                                <div class="buyout-price">
+                                    <span>Buyout:</span>
+                                    <span class="buyout-val">Rp${p.buyout_price.toLocaleString('id-ID')}</span>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="price-container">
+                                        <span class="price-label">Bid Terkini</span>
+                                        <span class="price-value">Rp${currentBid.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <span class="meta-info"><span class="bid-count">${bids.length} Bid</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 3. Render Histori Penjualan (Habis / Berakhir)
+            let historyProducts = db.getProducts().filter(p => p.seller_id === sellerId && ['sold', 'ended', 'reserved'].includes(p.status));
+            if (searchQuery) {
+                historyProducts = historyProducts.filter(p => 
+                    (p.title && p.title.toLowerCase().includes(searchQuery)) ||
+                    (p.description && p.description.toLowerCase().includes(searchQuery)) ||
+                    (p.sub_category && p.sub_category.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            const gridHistory = document.getElementById('grid-history');
+            if (historyProducts.length === 0) {
+                gridHistory.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; padding: 20px; font-size: 0.85rem;">Belum ada histori penjualan.</p>`;
+            } else {
+                gridHistory.innerHTML = historyProducts.map(p => {
+                    let badgeLabel = '';
+                    let badgeBg = '';
+                    let badgeColor = '';
+                    
+                    if (p.status === 'sold') {
+                        badgeLabel = 'TERJUAL';
+                        badgeBg = 'rgba(0, 0, 0, 0.7)';
+                        badgeColor = '#FFF';
+                    } else if (p.status === 'reserved') {
+                        badgeLabel = 'DIPESAN';
+                        badgeBg = 'rgba(217, 119, 6, 0.85)';
+                        badgeColor = '#FFF';
+                    } else if (p.status === 'ended') {
+                        badgeLabel = 'LELANG BERAKHIR';
+                        badgeBg = 'rgba(229, 37, 33, 0.85)';
+                        badgeColor = '#FFF';
+                    } else {
+                        badgeLabel = p.status.toUpperCase();
+                        badgeBg = 'rgba(100, 116, 139, 0.85)';
+                        badgeColor = '#FFF';
+                    }
+
+                    const isLelang = p.transaction_type === 'lelang';
+                    const bids = isLelang ? db.getBidsByProductId(p.id) : [];
+                    const finalPrice = isLelang 
+                        ? (bids.length > 0 ? bids[0].amount : p.starting_bid)
+                        : p.price;
+
+                    return `
+                        <div class="product-card" onclick="window.location.href='product.html?id=${p.id}'" style="opacity: 0.75; filter: grayscale(30%); cursor: pointer; position: relative;">
+                            <div style="position: absolute; top: 8px; left: 8px; background: ${badgeBg}; color: ${badgeColor}; font-family: var(--font-retro); font-size: 0.55rem; padding: 4px 8px; border: 1.5px solid var(--retro-dark); border-radius: 4px; z-index: 10; box-shadow: 1px 1px 0px var(--retro-dark);">
+                                ${badgeLabel}
+                            </div>
+                            <div class="image-container">
+                                <img src="${p.image_url}" alt="${p.title}">
+                            </div>
+                            <div class="card-content">
+                                <div class="tags-row">
+                                    <span class="tag mib">${p.condition}</span>
+                                    <span class="tag" style="border-color: var(--mario-blue); color: var(--mario-blue);">${p.sub_category}</span>
+                                </div>
+                                <div class="seller-name">${p.seller_name}</div>
+                                <h3 class="product-title">${p.title}</h3>
+                                <div class="card-footer">
+                                    <div class="price-container">
+                                        <span class="price-label">${isLelang ? 'Bid Akhir' : 'Harga'}</span>
+                                        <span class="price-value">Rp${finalPrice.toLocaleString('id-ID')}</span>
+                                    </div>
+                                    <span class="meta-info">${isLelang ? 'Lelang' : 'Sale'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Handler pencarian produk toko
+        function handleStoreProductSearch() {
+            renderStoreProfile();
+        }
+
+        // Init page loading
+        renderGlobalHeader();
+        if (typeof updateChatBadgeGlobal === 'function') {
+            updateChatBadgeGlobal();
+        }
+        renderStoreProfile();
+
+        // ── REALTIME: produk toko langsung update ───────────────────
+        window.addEventListener('retrohub_product_added', () => { renderStoreProfile(); });
+        window.addEventListener('retrohub_product_updated', () => { renderStoreProfile(); });
+        window.addEventListener('retrohub_product_deleted', () => { renderStoreProfile(); });
+        window.addEventListener('retrohub_sync_complete', () => { renderStoreProfile(); });
+    </script>
+</body>
+</html>

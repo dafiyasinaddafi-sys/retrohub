@@ -1,0 +1,1024 @@
+/* RetroHub - Main Stylesheet (Nostalgic Mario Retro Design System) */
+
+:root {
+    --mario-red: #E52521;
+    --mario-blue: #002FBE;
+    --mario-yellow: #FBD000;
+    --mario-green: #43B047;
+    --retro-dark: #1A1A1A;
+    --retro-light-gray: #E2E8F0;
+    --bg-page: #F8FAFC;
+    --bg-card: #FFFFFF;
+    
+    --font-retro: 'Pixelify Sans', monospace;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-number: 'Plus Jakarta Sans', sans-serif; /* Font bersih khusus angka agar sangat mudah dibaca */
+}
+
+/* Reset & Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    width: 100%;
+}
+
+body {
+    background-color: var(--bg-page);
+    font-family: var(--font-body);
+    color: var(--retro-dark);
+    padding-top: 54px; /* Sesuai tinggi header */
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+    flex-grow: 1; /* Mendorong footer ke bawah */
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 1. Header Sempit & Fungsional */
+header {
+    background-color: var(--mario-red);
+    border-bottom: 3px solid var(--retro-dark);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100vw;
+    height: 54px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-text {
+    font-family: var(--font-retro);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-shadow: 2px 2px 0px var(--retro-dark);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.header-toolbar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.toolbar-btn {
+    background: #FFFFFF;
+    border: 2px solid var(--retro-dark);
+    border-radius: 4px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--retro-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-decoration: none;
+    font-size: 1.1rem;
+}
+
+.toolbar-btn:hover {
+    background-color: var(--mario-yellow);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--retro-dark);
+}
+
+.toolbar-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--retro-dark);
+}
+
+.toolbar-btn-text {
+    background: #FFFFFF;
+    border: 2px solid var(--retro-dark);
+    border-radius: 4px;
+    padding: 0 12px;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--retro-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-family: var(--font-retro);
+    font-weight: 700;
+    color: var(--retro-dark);
+    white-space: nowrap;
+}
+
+.toolbar-btn-text:hover {
+    background-color: var(--mario-yellow);
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--retro-dark);
+}
+
+.toolbar-btn-text:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--retro-dark);
+}
+
+/* 2. Banner Event Slider */
+.slider-wrapper {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    margin: 10px 0 16px 0;
+    border: 3px solid var(--retro-dark);
+    box-shadow: 4px 4px 0px var(--retro-dark);
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #E2E8F0;
+    flex-shrink: 0;
+}
+
+.slider-container {
+    display: flex;
+    width: 300%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+    width: 33.333%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    color: #FFFFFF;
+    font-family: var(--font-retro);
+}
+
+.slide-1 { background: linear-gradient(135deg, #FF5757 0%, #FF3D3D 100%); }
+.slide-2 { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
+.slide-3 { background: linear-gradient(135deg, #10B981 0%, #047857 100%); }
+
+.slide h2 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    text-shadow: 2px 2px 0px var(--retro-dark);
+}
+
+.slide p {
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* 3. Search Bar */
+.search-section {
+    width: 100%;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+
+.search-bar-wrapper {
+    display: flex;
+    width: 100%;
+    border: 3px solid var(--retro-dark);
+    border-radius: 6px;
+    box-shadow: 4px 4px 0px var(--retro-dark);
+    overflow: hidden;
+    background-color: #FFFFFF;
+    box-sizing: border-box;
+}
+
+.search-input {
+    flex: 1 1 0;
+    min-width: 0;
+    border: none;
+    padding: 11px 14px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    outline: none;
+    color: var(--retro-dark);
+    box-sizing: border-box;
+}
+
+.search-btn {
+    flex-shrink: 0;
+    background-color: var(--mario-blue);
+    color: #FFFFFF;
+    border: none;
+    border-left: 3px solid var(--retro-dark);
+    padding: 0 18px;
+    font-family: var(--font-retro);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background-color: var(--mario-red);
+}
+
+/* Warning Banner Keselamatan (Unboxing & Packing) */
+.warning-banner {
+    background-color: #FFFDF0;
+    border: 2px solid var(--mario-yellow);
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.warning-icon {
+    font-size: 1.3rem;
+}
+
+.warning-text h4 {
+    font-family: var(--font-retro);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    color: #78350F;
+}
+
+.warning-text p {
+    font-size: 0.75rem;
+    color: #92400E;
+    line-height: 1.3;
+}
+
+/* 4. Quick Category Shortcuts */
+.categories-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 4px 12px 4px;
+    margin-bottom: 24px;
+    scrollbar-width: thin;
+}
+
+.categories-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.categories-scroll::-webkit-scrollbar-thumb {
+    background: var(--retro-light-gray);
+    border-radius: 3px;
+}
+
+.category-btn {
+    flex: 0 0 auto;
+    background: #FFFFFF;
+    border: 2px solid var(--retro-dark);
+    border-radius: 6px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: var(--font-retro);
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 2px 2px 0px var(--retro-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.category-btn:hover {
+    background-color: #FFFDF0;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--retro-dark);
+}
+
+.category-btn.active {
+    background-color: var(--mario-yellow);
+}
+
+.category-icon {
+    font-size: 1.2rem;
+}
+
+/* Titles */
+.section-title {
+    font-family: var(--font-retro);
+    font-size: 1.3rem;
+    margin: 10px 0 15px 0;
+    display: inline-block;
+    border-bottom: 3px solid var(--mario-blue);
+    padding-bottom: 2px;
+}
+
+/* 5. Products Grid & Card */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.scrollable-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 16px;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+    margin-bottom: 24px;
+}
+
+.scrollable-row::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scrollable-row::-webkit-scrollbar-thumb {
+    background: var(--retro-light-gray);
+    border-radius: 3px;
+}
+
+.scrollable-row .product-card {
+    flex: 0 0 200px;
+}
+
+
+
+
+.product-card {
+    background-color: var(--bg-card);
+    border: 2px solid var(--retro-dark);
+    border-radius: 4px;
+    box-shadow: 3px 3px 0px var(--retro-dark);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px var(--retro-dark);
+}
+
+.product-card:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--retro-dark);
+}
+
+.image-container {
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+    background-color: #F1F5F9;
+    border-bottom: 2px solid var(--retro-dark);
+    overflow: hidden;
+}
+
+.image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .image-container img {
+    transform: scale(1.05);
+}
+
+.discount-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--mario-red);
+    color: #FFFFFF;
+    font-family: var(--font-number);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-left: 2px solid var(--retro-dark);
+    border-bottom: 2px solid var(--retro-dark);
+    z-index: 10;
+}
+
+.time-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--retro-dark);
+    color: #FFFFFF;
+    font-family: var(--font-number);
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-left: 2px solid var(--retro-dark);
+    border-bottom: 2px solid var(--retro-dark);
+    z-index: 10;
+}
+
+.type-badge-lelang {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--mario-yellow);
+    color: var(--retro-dark);
+    font-family: var(--font-retro);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-right: 2px solid var(--retro-dark);
+    border-bottom: 2px solid var(--retro-dark);
+    z-index: 10;
+}
+
+.card-content {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.tags-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    font-family: var(--font-retro);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 4px;
+    border: 1px solid var(--retro-dark);
+    border-radius: 2px;
+}
+
+.tag.mib { background-color: #ECFDF5; color: var(--mario-green); border-color: var(--mario-green); }
+.tag.bib { background-color: #EFF6FF; color: var(--mario-blue); border-color: var(--mario-blue); }
+.tag.loose { background-color: #FFFBEB; color: #D97706; border-color: #D97706; }
+
+.seller-name {
+    font-size: 0.7rem;
+    color: #64748B;
+    margin-bottom: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-title {
+    font-family: var(--font-retro);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--retro-dark);
+    margin-bottom: 8px;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 1.8rem;
+}
+
+.buyout-price {
+    font-size: 0.65rem;
+    color: #475569;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+.buyout-val {
+    font-weight: 700;
+    color: var(--mario-blue);
+}
+
+.card-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px dashed var(--retro-light-gray);
+    padding-top: 6px;
+}
+
+.price-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.price-label {
+    font-size: 0.55rem;
+    color: #94A3B8;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.price-value {
+    font-family: var(--font-number);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--mario-red);
+}
+
+.meta-info {
+    font-size: 0.65rem;
+    color: #64748B;
+    font-weight: 600;
+}
+
+.bid-count {
+    color: var(--mario-blue);
+    font-weight: bold;
+}
+
+/* 6. Footer (Ramping & Horizontal) */
+footer {
+    background-color: #FFFFFF;
+    border-top: 3px solid var(--retro-dark);
+    padding: 12px 16px;
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.footer-copyright {
+    font-size: 0.75rem;
+    color: #64748B;
+}
+
+.donation-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: var(--mario-yellow);
+    color: var(--retro-dark);
+    font-family: var(--font-retro);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 4px 8px;
+    border: 2px solid var(--retro-dark);
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px var(--retro-dark);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.donation-btn:hover {
+    background-color: #FFE03D;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--retro-dark);
+}
+
+.donation-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--retro-dark);
+}
+
+/* 7. Responsivitas Mobile */
+@media (max-width: 768px) {
+    body {
+        padding-top: 48px;
+        overflow-x: hidden;
+    }
+    header {
+        height: 48px;
+        padding: 0 10px;
+        gap: 6px;
+    }
+    .logo-container {
+        flex-shrink: 0;
+    }
+    .logo-text {
+        font-size: 1.1rem;
+    }
+    .header-toolbar {
+        gap: 5px;
+        flex-shrink: 0;
+    }
+    .toolbar-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .slider-wrapper {
+        height: auto;
+        aspect-ratio: 16 / 7;
+        margin: 8px 0 12px 0;
+    }
+    .slide h2 {
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+    .slide p {
+        font-size: 0.7rem;
+        padding: 2px 8px;
+    }
+    .search-section {
+        margin-bottom: 12px;
+    }
+    .search-bar-wrapper {
+        flex-direction: row;
+        overflow: hidden;
+    }
+    .search-input {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 9px 10px;
+        font-size: 0.82rem;
+    }
+    .search-btn {
+        padding: 0 12px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .image-container img {
+        object-fit: cover;
+    }
+    .categories-scroll {
+        margin-bottom: 12px;
+        gap: 6px;
+        padding-bottom: 8px;
+    }
+    .category-btn {
+        padding: 5px 10px;
+        font-size: 0.72rem;
+        gap: 5px;
+    }
+    .category-icon {
+        font-size: 1rem;
+    }
+    .container {
+        padding: 10px;
+        overflow-x: hidden;
+    }
+    .section-title {
+        font-size: 1rem;
+        margin: 4px 0 8px 0;
+    }
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .product-card {
+        box-shadow: 2px 2px 0px var(--retro-dark);
+    }
+    .card-content {
+        padding: 6px;
+    }
+    .product-title {
+        font-size: 0.68rem;
+        height: 1.65rem;
+        margin-bottom: 4px;
+    }
+    .buyout-price {
+        font-size: 0.54rem;
+        margin-bottom: 2px;
+    }
+    .price-value {
+        font-size: 0.73rem;
+    }
+    .meta-info {
+        font-size: 0.58rem;
+    }
+    .tag {
+        font-size: 0.52rem;
+        padding: 0px 3px;
+    }
+    footer {
+        padding: 10px;
+        margin-top: 20px;
+    }
+    .footer-copyright {
+        font-size: 0.65rem;
+    }
+    .donation-btn {
+        font-size: 0.65rem;
+        padding: 3px 6px;
+    }
+    /* Scrollable row (lelang) di mobile */
+    .scrollable-row {
+        gap: 8px;
+        padding-bottom: 8px;
+    }
+    .scrollable-row .product-card {
+        flex: 0 0 145px;
+    }
+}
+
+/* ==========================================
+   RETRO TOAST & MODAL NOTIFICATION SYSTEM
+   ========================================== */
+
+/* Toast Container (Melayang di Pojok Kanan Atas) */
+.toast-container {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+/* Individual Toast Box */
+.toast-box {
+    background-color: #FFFFFF;
+    border: 2.5px solid var(--retro-dark);
+    border-radius: 4px;
+    box-shadow: 4px 4px 0px var(--retro-dark);
+    padding: 12px 16px;
+    width: 300px;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: slideInRight 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: transform 0.2s, opacity 0.2s;
+    position: relative;
+    border-left: 8px solid var(--retro-dark); /* Accent border */
+}
+
+/* Toast Color Accents */
+.toast-success { border-left-color: var(--mario-green); }
+.toast-error { border-left-color: var(--mario-red); }
+.toast-info { border-left-color: var(--mario-blue); }
+.toast-warning { border-left-color: var(--mario-yellow); }
+
+.toast-title {
+    font-family: var(--font-retro);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.toast-message {
+    font-size: 0.75rem;
+    color: #475569;
+}
+
+/* Custom Modal Dialog Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(26, 26, 26, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    animation: fadeIn 0.15s ease-out forwards;
+}
+
+/* Modal Content Dialog Box */
+.modal-box {
+    background-color: #FFFFFF;
+    border: 3px solid var(--retro-dark);
+    border-radius: 6px;
+    box-shadow: 6px 6px 0px var(--retro-dark);
+    padding: 24px;
+    max-width: 420px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    transform: scale(0.9);
+    animation: scaleUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.modal-title {
+    font-family: var(--font-retro);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.modal-message {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Custom Retro Buttons (Mario Theme) */
+.btn-retro {
+    font-family: var(--font-retro);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    border: 2px solid var(--retro-dark);
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px var(--retro-dark);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    outline: none;
+    text-decoration: none;
+}
+.btn-retro:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--retro-dark);
+}
+.btn-retro:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--retro-dark);
+}
+
+.btn-red { background-color: var(--mario-red); color: #FFFFFF; }
+.btn-blue { background-color: var(--mario-blue); color: #FFFFFF; }
+.btn-yellow { background-color: var(--mario-yellow); color: var(--retro-dark); }
+.btn-green { background-color: var(--mario-green); color: #FFFFFF; }
+.btn-white { background-color: #FFFFFF; color: var(--retro-dark); }
+
+/* Hide wide text elements in header under 768px (mobile portrait/square viewports) */
+@media (max-width: 768px) {
+    .toolbar-btn-text, #global-username-text {
+        display: none !important;
+    }
+}
+
+/* Extra-small phones */
+@media (max-width: 360px) {
+    .logo-text {
+        font-size: 0.95rem;
+    }
+    .toolbar-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 0.85rem;
+    }
+    .container {
+        padding: 8px;
+    }
+    .products-grid {
+        gap: 6px;
+    }
+    .slider-wrapper {
+        aspect-ratio: 16 / 8;
+    }
+}
+
+/* Retro dropdown & cart popout responsif mobile */
+@media (max-width: 480px) {
+    .retro-dropdown {
+        width: calc(100vw - 24px) !important;
+        right: 12px !important;
+        left: 12px !important;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    #global-cart-popout {
+        width: calc(100vw - 24px) !important;
+    }
+    /* Perbaiki modal width di hp kecil */
+    .modal-box {
+        width: 94%;
+        padding: 18px 14px;
+    }
+    .chat-modal-box {
+        width: 96% !important;
+        max-width: none !important;
+    }
+}
+
+/* Toast responsif mobile */
+@media (max-width: 480px) {
+    .toast-container {
+        right: 10px;
+        left: 10px;
+        top: 60px;
+        width: auto;
+    }
+    .toast-box {
+        width: 100%;
+    }
+}
+
+
+/* ===== Sort & Filter Panel (Shopee-style) ===== */
+.sort-chip {
+    flex: 0 0 auto;
+    background: #FFFFFF;
+    border: 2px solid var(--retro-dark);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-family: var(--font-retro);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--retro-dark);
+    transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    white-space: nowrap;
+}
+.sort-chip:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--retro-dark);
+}
+.sort-chip.active {
+    background: var(--mario-yellow);
+    box-shadow: 2px 2px 0 var(--retro-dark);
+}
+
+/* sort-label dihapus — tombol kini teks saja tanpa emoji */
+
+.filter-cat-chip {
+    flex: 0 0 auto;
+    background: #FFFFFF;
+    border: 2px solid var(--retro-dark);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-family: var(--font-retro);
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--retro-dark);
+    transition: transform 0.1s, background 0.1s;
+}
+.filter-cat-chip:hover {
+    transform: translate(-1px, -1px);
+    background: #FFFDF0;
+}
+.filter-cat-chip.active {
+    background: var(--mario-blue);
+    color: #FFFFFF;
+    border-color: var(--mario-blue);
+}

@@ -1,0 +1,2600 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroHub - Dashboard Admin</title>
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
+    <!-- Link Stylesheet Utama -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* CSS Khusus Dashboard Admin */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .admin-sidebar {
+            background-color: var(--bg-card);
+            border: 3px solid var(--retro-dark);
+            border-radius: 6px;
+            box-shadow: 4px 4px 0px var(--retro-dark);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: fit-content;
+        }
+
+        .sidebar-btn {
+            background: #FFFFFF;
+            border: 2px solid var(--retro-dark);
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-family: var(--font-retro);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.1s;
+        }
+
+        .sidebar-btn:hover, .sidebar-btn.active {
+            background-color: var(--mario-yellow);
+        }
+
+        .admin-content {
+            background-color: var(--bg-card);
+            border: 3px solid var(--retro-dark);
+            border-radius: 6px;
+            box-shadow: 5px 5px 0px var(--retro-dark);
+            padding: 24px;
+            min-height: 400px;
+        }
+
+        .content-tab {
+            display: none;
+        }
+
+        .content-tab.active {
+            display: block;
+        }
+
+        .tab-title {
+            font-family: var(--font-retro);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border-bottom: 2px dashed var(--retro-dark);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Verification Request Card */
+        .verify-card {
+            border: 2px solid var(--retro-dark);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 2px 2px 0px var(--retro-dark);
+            background-color: #FFFFFF;
+        }
+
+        .verify-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            border-bottom: 1px dashed var(--retro-light-gray);
+            padding-bottom: 8px;
+        }
+
+        .verify-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .ktp-preview {
+            border: 2px solid var(--retro-dark);
+            border-radius: 4px;
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            cursor: zoom-in;
+        }
+
+        /* Banner Size Guide Box */
+        .banner-guide-box {
+            background-color: #FFFDF0;
+            border: 2px dashed var(--mario-yellow);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            color: #78350F;
+        }
+
+        /* Dispute Card */
+        .dispute-card {
+            border: 2px solid var(--retro-dark);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background-color: #FFFFFF;
+            box-shadow: 3px 3px 0px var(--retro-dark);
+        }
+
+        .dispute-videos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .dispute-video-box {
+            border: 2px solid var(--retro-dark);
+            background-color: #F1F5F9;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        /* List Categories Table */
+        .categories-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .categories-table th, .categories-table td {
+            border: 2px solid var(--retro-dark);
+            padding: 10px;
+            text-align: left;
+        }
+
+        .categories-table th {
+            background-color: var(--mario-blue);
+            color: #FFFFFF;
+            font-family: var(--font-retro);
+        }
+
+        /* Blocked Overlay */
+        .blocked-screen {
+            display: none;
+            background-color: #FFFFFF;
+            border: 3px solid var(--retro-dark);
+            box-shadow: 5px 5px 0px var(--retro-dark);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .blocked-screen h2 {
+            font-family: var(--font-retro);
+            color: var(--mario-red);
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        /* Custom Login Selector */
+        .login-select {
+            background-color: #FFFFFF;
+            color: var(--retro-dark);
+            border: 2px solid var(--retro-dark);
+            border-radius: 4px;
+            padding: 4px 6px;
+            font-family: var(--font-retro);
+            font-size: 0.75rem;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .login-select:hover {
+            background-color: var(--mario-yellow);
+        }
+
+        /* Retro Form Inputs & Groups */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-family: var(--font-retro);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--retro-dark);
+        }
+        .form-input {
+            width: 100%;
+            border: 2px solid var(--retro-dark);
+            border-radius: 4px;
+            padding: 8px 10px;
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            outline: none;
+            box-sizing: border-box;
+            background-color: #FFFFFF;
+        }
+        .form-input:focus {
+            border-color: var(--mario-blue);
+            background-color: #F8FAFC;
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+            .verify-body, .dispute-videos {
+                grid-template-columns: 1fr !important;
+                gap: 12px;
+            }
+            /* Header inline selector responsif */
+            header .header-toolbar > div:first-child span {
+                display: none;
+            }
+            header .header-toolbar > div:first-child select {
+                max-width: 90px;
+                font-size: 0.62rem;
+                padding: 3px;
+            }
+            header .toolbar-btn-text {
+                display: none !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .retro-dropdown, #global-cart-popout {
+                width: calc(100vw - 24px) !important;
+                right: 12px !important;
+                left: 12px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Sempit Merah Mario -->
+    <header>
+        <div class="logo-container">
+            <a href="index.html" class="logo-text">RetroHub</a>
+        </div>
+        <div class="header-toolbar">
+            <a href="seller.html" class="toolbar-btn-text" title="Dashboard Seller">SellerHub</a>
+            <a href="#" class="toolbar-btn" title="Notifikasi">🔔</a>
+            <a href="#" class="toolbar-btn" title="Keranjang">🛒</a>
+            <a href="#" class="toolbar-btn" title="Pengaturan">⚙️</a>
+            <a href="#" class="toolbar-btn" title="Akun">👤</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Layar Ditolak (Jika bukan admin) -->
+        <div class="blocked-screen" id="blocked-screen">
+            <h2>Akses Ditolak ⚠️</h2>
+            <p id="blocked-message">Halaman ini dilindungi! Hanya akun dengan hak akses Administrator yang diizinkan mengelola data platform.</p>
+            <br>
+            <button class="btn-retro btn-blue" id="blocked-action-btn">Masuk dengan Google (Admin) 👤</button>
+        </div>
+
+        <!-- Main Dashboard Admin Layout -->
+        <div class="admin-layout" id="dashboard-layout" style="display: none;">
+            
+            <!-- 1. Sidebar Navigasi -->
+            <aside class="admin-sidebar">
+                <div style="text-align: center; padding: 10px 0; border-bottom: 1.5px dashed var(--retro-light-gray); margin-bottom: 12px;">
+                    <h3 style="font-family: var(--font-retro); font-size: 1.1rem;">Panel Pengelola</h3>
+                    <span style="font-size: 0.7rem; color: var(--mario-red); font-weight: bold;">🔑 Root Admin</span>
+                </div>
+                <button class="sidebar-btn active" onclick="switchTab('acc-seller')">👤 ACC Seller Baru</button>
+                <button class="sidebar-btn" onclick="switchTab('moderasi-produk')">🛡️ Moderasi Produk</button>
+                <button class="sidebar-btn" onclick="switchTab('sengketa-rekber')">⚖️ Sengketa Rekber</button>
+                <button class="sidebar-btn" onclick="switchTab('kelola-kategori')">🎮 Kelola Kategori</button>
+                <button class="sidebar-btn" onclick="switchTab('kelola-banner')">🖼️ Kelola Banner</button>
+                <button class="sidebar-btn" onclick="switchTab('kelola-seller')">👥 Kelola Pengguna & Saldo</button>
+                <button class="sidebar-btn" onclick="switchTab('kelola-withdraw')">💰 Kelola Withdraw</button>
+                <button class="sidebar-btn" onclick="switchTab('pantau-transaksi')">📦 Pantau Transaksi</button>
+            </aside>
+
+            <!-- 2. Area Konten Utama -->
+            <main class="admin-content">
+                
+                <!-- TAB 1: ACC SELLER BARU -->
+                <section class="content-tab active" id="tab-acc-seller">
+                    <div class="tab-title">Verifikasi Seller Baru 👤</div>
+                    <div id="verify-queue-container">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </section>
+
+                <!-- TAB 2: MODERASI PRODUK -->
+                <section class="content-tab" id="tab-moderasi-produk">
+                    <div class="tab-title">Moderasi Produk Terlapor / Terlarang 🛡️</div>
+                    <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 16px;">
+                        Berikut adalah daftar mainan yang otomatis ditandai (flagged) karena deskripsinya mengandung kata-kata yang berpotensi melanggar aturan jualan.
+                    </p>
+                    <div class="products-grid" id="flagged-products-grid">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </section>
+
+                <!-- TAB 3: SENGKETA REKBER -->
+                <section class="content-tab" id="tab-sengketa-rekber">
+                    <div class="tab-title">Pusat Sengketa Transaksi (Dispute Center) ⚖️</div>
+                    <div id="dispute-list-container">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </section>
+
+                <!-- TAB 4: KELOLA KATEGORI -->
+                <section class="content-tab" id="tab-kelola-kategori">
+                    <div class="tab-title">Pengaturan Kategori Dinamis 🎮</div>
+                    
+                    <div class="shipping-calc-box" style="background-color: #FFFFFF; margin-bottom: 24px;">
+                        <h4 style="font-family: var(--font-retro); font-size: 1rem; margin-bottom: 12px; border-bottom: 1.5px dashed var(--retro-light-gray); padding-bottom: 6px;">
+                            Tambah Kategori Utama Baru
+                        </h4>
+                        <form id="add-category-form" onsubmit="event.preventDefault(); handleAddCategory();">
+                            <div style="display: grid; grid-template-columns: 3.5fr 1.5fr; gap: 16px; margin-bottom: 12px;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Nama Kategori</label>
+                                    <input type="text" class="form-input" id="cat-name" placeholder="Contoh: Model Kit" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Icon Emoji</label>
+                                    <input type="text" class="form-input" id="cat-icon" placeholder="🤖" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Daftar Sub-Kategori (Pisahkan dengan koma)</label>
+                                <input type="text" class="form-input" id="cat-subs" placeholder="Contoh: Gunpla, HG 1/144, RG 1/144, MG 1/100, Umum" required>
+                            </div>
+                            <button type="submit" class="btn-retro btn-blue" style="width: 100%;">Simpan Kategori Baru</button>
+                        </form>
+                    </div>
+
+                    <table class="categories-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Icon</th>
+                                <th style="width: 150px;">Kategori</th>
+                                <th>Sub-Kategori</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table-body">
+                            <!-- Diisi dinamis -->
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- TAB 5: KELOLA BANNER -->
+                <section class="content-tab" id="tab-kelola-banner">
+                    <div class="tab-title">Banner Promo & Event 🖼️</div>
+                    
+                    <!-- Kisi-kisi Ukuran Pixel -->
+                    <div class="banner-guide-box">
+                        <strong style="font-family: var(--font-retro);">⚠️ PANDUAN UKURAN BANNER:</strong>
+                        <p style="margin-top: 4px; line-height: 1.4;">
+                            Agar spanduk event/promo tidak terpotong dan terlihat tajam:
+                            <br>
+                            - Rekomendasi Desktop: **1200 pixel x 400 pixel** (Rasio 3:1)
+                            <br>
+                            - Rekomendasi Mobile: **600 pixel x 200 pixel**
+                            <br>
+                            - Format gambar yang disarankan: **WebP atau PNG**.
+                        </p>
+                    </div>
+
+                    <!-- Form Tambah Banner Baru -->
+                    <div class="shipping-calc-box" style="background-color: #FFFFFF; margin-bottom: 24px;">
+                        <h4 style="font-family: var(--font-retro); font-size: 1rem; margin-bottom: 12px; border-bottom: 1.5px dashed var(--retro-light-gray); padding-bottom: 6px; color: var(--mario-blue);">
+                            ➕ Tambah Banner Baru
+                        </h4>
+                        <form id="add-banner-form" onsubmit="event.preventDefault(); handleAddBanner();">
+                            <div class="form-group">
+                                <label>Pilih Gambar Banner (File)*</label>
+                                <input type="file" id="banner-file-input" accept="image/*" class="form-input" style="padding: 6px;" onchange="previewBannerImage()">
+                            </div>
+                            <div class="form-group">
+                                <label>Atau Gunakan URL Gambar</label>
+                                <input type="text" id="banner-url-input" class="form-input" placeholder="https://example.com/banner.jpg" oninput="previewBannerImage()">
+                            </div>
+                            
+                            <!-- Box Preview Gambar Banner -->
+                            <div id="banner-preview-container" style="display: none; margin-bottom: 16px;">
+                                <span style="font-size: 0.7rem; font-weight: bold; color: #64748B; display: block; margin-bottom: 4px;">PRATINJAU BANNER (Rasio 3:1):</span>
+                                <div style="border: 2px solid var(--retro-dark); border-radius: 6px; overflow: hidden; height: 120px; background-color: #F1F5F9; box-shadow: 2px 2px 0px var(--retro-dark);">
+                                    <img id="banner-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Link URL (Hyperlink Tujuan saat Diklik)</label>
+                                <input type="text" id="banner-link-input" class="form-input" placeholder="Contoh: product.html?id=prod-1 atau store.html?seller_id=seller-1">
+                                <span style="font-size: 0.65rem; color: #64748B;">🔗 Kosongkan jika banner hanya untuk info visual tanpa hyperlink.</span>
+                            </div>
+                            <button type="submit" class="btn-retro btn-blue" style="width: 100%; margin-top: 8px;">Upload & Simpan Banner Baru 🚀</button>
+                        </form>
+                    </div>
+
+                    <!-- Daftar Banner Aktif -->
+                    <div class="shipping-calc-box" style="background-color: #FFFFFF;">
+                        <h4 style="font-family: var(--font-retro); font-size: 1rem; margin-bottom: 12px; border-bottom: 1.5px dashed var(--retro-light-gray); padding-bottom: 6px; color: var(--mario-red);">
+                            🖼️ Daftar Banner Aktif
+                        </h4>
+                        <div id="active-banners-container" style="display: flex; flex-direction: column; gap: 16px;">
+                            <!-- Diisi dinamis -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 6: KELOLA SELLER -->
+                <section class="content-tab" id="tab-kelola-seller">
+                    <div class="tab-title">Kelola Pengguna & Saldo 👥</div>
+                    <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 16px;">
+                        Pantau seluruh pengguna (pembeli & penjual) yang aktif di RetroHub, periksa saldo dompet refund, saldo toko, serta daftar pesanan belum terbayarkan.
+                    </p>
+                    <!-- Search & Filter Pengguna -->
+                    <div class="search-section" style="margin-bottom: 16px; display: flex; gap: 8px;">
+                        <input type="text" id="seller-search-input" class="search-input" placeholder="Cari pengguna berdasarkan nama, pemilik, atau ID..." oninput="renderSellersList()" style="flex-grow: 1;">
+                        <select id="user-role-filter" class="shipping-select" onchange="renderSellersList()" style="box-shadow: 2px 2px 0px var(--retro-dark); margin: 0; padding: 6px; font-size: 0.8rem; min-width: 150px;">
+                            <option value="all">Semua Tipe Akun</option>
+                            <option value="seller">Seller</option>
+                            <option value="buyer">Buyer</option>
+                        </select>
+                    </div>
+                    <div id="sellers-list-container" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </section>
+
+                <!-- TAB 8: KELOLA WITHDRAW -->
+                <section class="content-tab" id="tab-kelola-withdraw">
+                    <div class="tab-title">Persetujuan & Kelola Penarikan Dana (Withdraw) 💰</div>
+                    <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 16px;">
+                        Verifikasi pengajuan penarikan dana dari penjual (saldo toko dari transaksi selesai) dan pembeli (saldo dompet refund).
+                    </p>
+                    
+                    <!-- Search & Filter Withdraw -->
+                    <div class="search-section" style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <input type="text" id="wd-search-input" class="search-input" placeholder="Cari withdraw berdasarkan ID, nama user, bank..." oninput="renderWithdrawQueue()" style="flex-grow: 1;">
+                        <select id="wd-status-filter" class="shipping-select" onchange="renderWithdrawQueue()" style="box-shadow: 2px 2px 0px var(--retro-dark); margin: 0; padding: 6px; font-size: 0.8rem; min-width: 150px;">
+                            <option value="all">Semua Status</option>
+                            <option value="pending">Pending ⏳</option>
+                            <option value="processing">Diproses 🔄</option>
+                            <option value="success">Berhasil ✅</option>
+                            <option value="rejected">Ditolak ❌</option>
+                        </select>
+                        <select id="wd-type-filter" class="shipping-select" onchange="renderWithdrawQueue()" style="box-shadow: 2px 2px 0px var(--retro-dark); margin: 0; padding: 6px; font-size: 0.8rem; min-width: 150px;">
+                            <option value="all">Semua Tipe</option>
+                            <option value="seller_balance">Penarikan Seller</option>
+                            <option value="buyer_wallet">Penarikan Buyer</option>
+                        </select>
+                    </div>
+
+                    <div id="withdraw-queue-container" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Diisi dinamis -->
+                    </div>
+                </section>
+
+                <!-- TAB 7: PANTAU TRANSAKSI -->
+                <section class="content-tab" id="tab-pantau-transaksi">
+                    <div class="tab-title">Monitoring Transaksi Rekber 📦</div>
+                    <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 16px;">
+                        Lacak seluruh transaksi yang sedang berjalan (ongoing), selesai (completed), atau bermasalah (dispute/refund) pada sistem Rekber RetroHub.
+                    </p>
+                    
+                    <!-- Filter Transaksi -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px dashed var(--retro-light-gray); padding-bottom: 12px; flex-wrap: wrap;">
+                        <button class="btn-retro btn-white active" id="btn-tx-all" onclick="filterTransactions('all')" style="font-size: 0.75rem; padding: 6px 12px;">Semua</button>
+                        <button class="btn-retro btn-white" id="btn-tx-waiting_payment" onclick="filterTransactions('waiting_payment')" style="font-size: 0.75rem; padding: 6px 12px;">Menunggu Pembayaran 💳</button>
+                        <button class="btn-retro btn-white" id="btn-tx-shipping" onclick="filterTransactions('shipping')" style="font-size: 0.75rem; padding: 6px 12px;">Dalam Pengiriman 🚚</button>
+                        <button class="btn-retro btn-white" id="btn-tx-problem" onclick="filterTransactions('problem')" style="font-size: 0.75rem; padding: 6px 12px;">Bermasalah ⚠️</button>
+                        <button class="btn-retro btn-white" id="btn-tx-cancelled" onclick="filterTransactions('cancelled')" style="font-size: 0.75rem; padding: 6px 12px;">Dibatalkan 🚫</button>
+                        <button class="btn-retro btn-white" id="btn-tx-completed" onclick="filterTransactions('completed')" style="font-size: 0.75rem; padding: 6px 12px;">Selesai ✅</button>
+                    </div>
+
+                    <!-- Search Transaksi -->
+                    <div class="search-section" style="margin-bottom: 16px;">
+                        <div class="search-bar-wrapper">
+                            <input type="text" id="tx-search-input" class="search-input" placeholder="Cari transaksi berdasarkan ID, nama pembeli/penjual, atau produk..." oninput="renderTransactionsMonitor()">
+                        </div>
+                    </div>
+
+                    <!-- Transaksi Container -->
+                    <div id="transactions-monitor-container" style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- Diisi dinamis -->
+                    </div>
+
+                    <!-- API Log Section -->
+                    <div style="margin-top: 32px; border-top: 3px solid var(--retro-dark); padding-top: 24px;">
+                        <h3 style="font-family: var(--font-retro); font-size: 1.1rem; margin-bottom: 8px;">📊 Log Historis API Payment Gateway</h3>
+                        <p style="font-size: 0.75rem; color: #64748B; margin-bottom: 16px;">
+                            Aktivitas sinkronisasi callback dan status pembayaran dari Payment Gateway Simulator.
+                        </p>
+                        
+                        <!-- Search & Filter API Logs -->
+                        <div class="search-section" style="margin-bottom: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <input type="text" id="api-log-search" class="search-input" placeholder="Cari berdasarkan Order ID..." oninput="renderAPILogs()" style="flex-grow: 1;">
+                            <select id="api-log-status-filter" class="shipping-select" onchange="renderAPILogs()" style="box-shadow: 2px 2px 0px var(--retro-dark); margin: 0; padding: 6px; font-size: 0.8rem; min-width: 150px;">
+                                <option value="all">Semua Status API</option>
+                                <option value="success">Success ✅</option>
+                                <option value="unpaid">Unpaid ⏳</option>
+                                <option value="failed">Failed ❌</option>
+                                <option value="error">Error ⚠️</option>
+                            </select>
+                        </div>
+                        
+                        <div style="overflow-x: auto; background: white; border: 3px solid var(--retro-dark); border-radius: 8px; box-shadow: 4px 4px 0px var(--retro-dark); padding: 12px;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--retro-dark); font-family: var(--font-retro); font-size: 0.75rem; text-align: left;">
+                                        <th style="padding: 8px;">Log ID</th>
+                                        <th style="padding: 8px;">Order ID</th>
+                                        <th style="padding: 8px;">Nominal</th>
+                                        <th style="padding: 8px;">Status Respon</th>
+                                        <th style="padding: 8px;">Waktu Aktivitas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="api-logs-tbody">
+                                    <!-- Diisi dinamis -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-copyright">© 2026 RetroHub.</div>
+        <a href="#" class="donation-btn">☕ Dukung RetroHub</a>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="db.js"></script>
+    <script src="ui.js"></script>
+    
+    <script>
+        let currentAdminId = null;
+
+        async function checkAdminAccessLive() {
+            const dashboard = document.getElementById('dashboard-layout');
+            const blockedScreen = document.getElementById('blocked-screen');
+            const blockedMessage = document.getElementById('blocked-message');
+            const blockedBtn = document.getElementById('blocked-action-btn');
+
+            if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+                dashboard.style.display = 'none';
+                blockedScreen.style.display = 'block';
+                blockedMessage.innerText = "Supabase belum terhubung. Akses dibatasi!";
+                return;
+            }
+
+            const { data: { user: authUser } } = await supabaseClient.auth.getUser();
+
+            if (authUser) {
+                // Query langsung ke Supabase - tidak bergantung sync lokal
+                let isAdmin = false;
+                try {
+                    const { data: profileData, error } = await supabaseClient
+                        .from('profiles')
+                        .select('is_admin, is_buyer, is_seller, seller_status, full_name, store_name, email')
+                        .eq('id', authUser.id)
+                        .single();
+
+                    if (!error && profileData) {
+                        isAdmin = profileData.is_admin === true;
+                        // Sync ke local db agar tab-tab admin bisa render data
+                        db.saveProfile({ id: authUser.id, ...profileData });
+                        db.setCurrentUserId(authUser.id);
+                    } else {
+                        // Belum ada row profiles (user baru / trigger belum jalan)
+                        isAdmin = authUser.email === 'dafiyasinaddafi@gmail.com';
+                        const newProfile = {
+                            id: authUser.id,
+                            email: authUser.email,
+                            full_name: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
+                            store_name: null,  // jangan auto-set dari email — user isi sendiri
+                            is_buyer: true, is_seller: false, is_admin: isAdmin, seller_status: null,
+                            warning_count: 0
+                        };
+                        await supabaseClient.from('profiles').upsert(newProfile, { onConflict: 'id' });
+                        db.saveProfile(newProfile);
+                        db.setCurrentUserId(authUser.id);
+                    }
+                } catch (e) {
+                    console.warn('Supabase query gagal, fallback ke local db:', e);
+                    const localProfile = db.getProfileById(authUser.id);
+                    isAdmin = localProfile?.is_admin === true;
+                }
+
+                if (isAdmin) {
+                    currentAdminId = authUser.id;
+                    dashboard.style.display = 'grid';
+                    blockedScreen.style.display = 'none';
+
+                    // Sync data dari Supabase lalu render tab aktif
+                    await syncAdminData();
+                    refreshActiveTabData();
+                    showToast("Akses Diterima", `Selamat datang, ${authUser.email}`, "success");
+                    return;
+                }
+                // Login tapi bukan admin
+                blockedMessage.innerHTML = `
+                    Akses Dibatasi! Hanya akun Administrator yang berhak mengelola data platform.<br>
+                    Akun aktif saat ini: <strong>${authUser.email}</strong>
+                `;
+                if (blockedBtn) {
+                    blockedBtn.innerText = "Keluar / Logout 🚪";
+                    blockedBtn.onclick = async () => {
+                        await supabaseClient.auth.signOut();
+                        localStorage.removeItem('retrohub_supabase_user_id');
+                        localStorage.setItem('retrohub_current_user_id', 'guest');
+                        sessionStorage.removeItem('retrohub_session_synced');
+                        window.location.reload();
+                    };
+                }
+            } else {
+                // Belum login
+                blockedMessage.innerText = "Halaman ini dilindungi! Silakan masuk dengan akun Administrator.";
+                if (blockedBtn) {
+                    blockedBtn.innerText = "Masuk dengan Google 👤";
+                    blockedBtn.onclick = async () => {
+                        await supabaseClient.auth.signInWithOAuth({
+                            provider: 'google',
+                            options: { redirectTo: window.location.origin + window.location.pathname }
+                        });
+                    };
+                }
+            }
+
+            dashboard.style.display = 'none';
+            blockedScreen.style.display = 'block';
+        }
+
+        // Sync semua data admin dari Supabase ke localStorage
+        async function syncAdminData() {
+            if (!supabaseClient) return;
+            try {
+                const [
+                    { data: allOrders },
+                    { data: allProfiles },
+                    { data: allProducts },
+                    { data: allDisputes }
+                ] = await Promise.all([
+                    supabaseClient.from('orders').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('profiles').select('*'),
+                    supabaseClient.from('products').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('disputes').select('*').order('created_at', { ascending: false })
+                ]);
+
+                // Enrich orders dengan nama buyer/seller dari profiles (agar filter & tampilan lengkap)
+                if (allOrders && allProfiles) {
+                    const enrichedOrders = allOrders.map(o => {
+                        const buyer  = allProfiles.find(p => p.id === o.buyer_id);
+                        const seller = allProfiles.find(p => p.id === o.seller_id);
+                        return {
+                            ...o,
+                            buyer_name:  o.buyer_name  || (buyer  ? '@' + buyer.store_name  : o.buyer_id),
+                            seller_name: o.seller_name || (seller ? '@' + seller.store_name : o.seller_id),
+                            // Alias field agar kompatibel dengan kode lama
+                            courier:     o.shipping_courier,
+                            price:       Number(o.price_deal || 0),
+                            price_deal:  Number(o.price_deal || 0),
+                            shipping_cost: Number(o.shipping_cost || 0),
+                            admin_fee:   Number(o.admin_fee || 5000),
+                            total_payment: Number(o.total_payment || 0),
+                        };
+                    });
+                    localStorage.setItem('retrohub_orders', JSON.stringify(enrichedOrders));
+                } else if (allOrders) {
+                    localStorage.setItem('retrohub_orders', JSON.stringify(allOrders));
+                }
+
+                if (allProfiles) localStorage.setItem('retrohub_profiles', JSON.stringify(allProfiles));
+                if (allProducts && allProfiles) {
+                    // Enrich products dengan nama seller (agar tampilan admin lengkap)
+                    const enrichedProducts = allProducts.map(p => {
+                        const seller = allProfiles.find(prof => prof.id === p.seller_id);
+                        return {
+                            ...p,
+                            status: p.status ? p.status.toLowerCase() : 'active',
+                            stock: p.stock !== null && p.stock !== undefined ? Number(p.stock) : 1,
+                            seller_name: p.seller_name || (seller ? '@' + (seller.store_name || seller.full_name) : p.seller_id),
+                            seller_kecamatan: seller ? seller.address_kecamatan : ''
+                        };
+                    });
+                    localStorage.setItem('retrohub_products', JSON.stringify(enrichedProducts));
+                } else if (allProducts) {
+                    const normalizedProducts = allProducts.map(p => ({
+                        ...p,
+                        status: p.status ? p.status.toLowerCase() : 'active'
+                    }));
+                    localStorage.setItem('retrohub_products', JSON.stringify(normalizedProducts));
+                }
+                if (allDisputes) localStorage.setItem('retrohub_disputes', JSON.stringify(allDisputes));
+
+                console.log('[Admin] syncAdminData selesai:', {
+                    orders: allOrders?.length ?? 0,
+                    profiles: allProfiles?.length ?? 0,
+                    products: allProducts?.length ?? 0,
+                });
+            } catch(e) {
+                console.warn('[Admin] syncAdminData gagal:', e);
+            }
+        }
+
+        // Switch Tab Admin
+        function switchTab(tabId) {
+            localStorage.setItem('retrohub_admin_active_tab', tabId);
+            document.querySelectorAll('.sidebar-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.content-tab').forEach(tab => tab.classList.remove('active'));
+
+            const tabBtnText = {
+                'acc-seller': 'ACC Seller',
+                'moderasi-produk': 'Moderasi Produk',
+                'sengketa-rekber': 'Sengketa Rekber',
+                'kelola-kategori': 'Kelola Kategori',
+                'kelola-banner': 'Kelola Banner',
+                'kelola-seller': 'Kelola Pengguna',
+                'kelola-withdraw': 'Kelola Withdraw',
+                'pantau-transaksi': 'Pantau Transaksi'
+            };
+
+            const clickedBtn = Array.from(document.querySelectorAll('.sidebar-btn')).find(btn => btn.innerText.includes(tabBtnText[tabId]));
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) targetTab.classList.add('active');
+
+            // Sync dari Supabase dulu, baru render
+            syncAdminData().then(() => refreshActiveTabData());
+        }
+
+        async function refreshActiveTabData() {
+            const activeTab = document.querySelector('.content-tab.active');
+            if (!activeTab) return;
+
+            if (activeTab.id === 'tab-acc-seller') {
+                await renderSellerVerificationQueue();
+            } else if (activeTab.id === 'tab-moderasi-produk') {
+                renderFlaggedProducts();
+            } else if (activeTab.id === 'tab-sengketa-rekber') {
+                renderDisputeQueue();
+            } else if (activeTab.id === 'tab-kelola-kategori') {
+                renderCategoriesTable();
+            } else if (activeTab.id === 'tab-kelola-banner') {
+                renderActiveBanners();
+            } else if (activeTab.id === 'tab-kelola-seller') {
+                await renderSellersList();
+            } else if (activeTab.id === 'tab-kelola-withdraw') {
+                renderWithdrawQueue();
+            } else if (activeTab.id === 'tab-pantau-transaksi') {
+                await renderTransactionsMonitor();
+                renderAPILogs();
+            }
+        }
+
+        // ==========================================================
+        // TAB 1: VERIFIKASI SELLER BARU (ACC SELLER)
+        // ==========================================================
+        async function renderSellerVerificationQueue() {
+            const container = document.getElementById('verify-queue-container');
+            let allProfiles = db.getProfiles();
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('profiles').select('*');
+                    if (!error && data) {
+                        allProfiles = data;
+                        localStorage.setItem('retrohub_profiles', JSON.stringify(data));
+                    }
+                } catch(e) {}
+            }
+            const profiles = allProfiles.filter(p => p.is_seller && p.seller_status === 'pending');
+
+            if (profiles.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748B; padding: 20px;">Daftar pengajuan seller kosong. Semua telah diproses! 👍</p>`;
+                return;
+            }
+
+            container.innerHTML = profiles.map(profile => `
+                <div class="verify-card" id="verify-card-${profile.id}">
+                    <div class="verify-header">
+                        <span>Pengaju: <strong>${profile.full_name}</strong></span>
+                        <span style="color: var(--mario-blue);">Menunggu Verifikasi KTP</span>
+                    </div>
+                    <div style="font-size: 0.8rem; line-height: 1.4; margin-bottom: 12px;">
+                        <div>Username: @${profile.store_name}</div>
+                        <div>Alamat Toko: Kel. ${profile.address_kelurahan}, Kec. ${profile.address_kecamatan}</div>
+                        <div>Reputasi Toko Lain: <a href="${profile.other_store_link}" target="_blank">${profile.other_store_link}</a></div>
+                    </div>
+                    <div class="verify-body">
+                        <div>
+                            <span style="font-size: 0.65rem; font-weight: bold; color: #64748B; display: block; margin-bottom: 4px;">FOTO KTP</span>
+                            <img src="${profile.ktp_photo_url}" class="ktp-preview" onclick="zoomImage('${profile.ktp_photo_url}')" title="Klik zoom KTP">
+                        </div>
+                        <div>
+                            <span style="font-size: 0.65rem; font-weight: bold; color: #64748B; display: block; margin-bottom: 4px;">FOTO SELFIE + KTP</span>
+                            <img src="${profile.ktp_selfie_url}" class="ktp-preview" onclick="zoomImage('${profile.ktp_selfie_url}')" title="Klik zoom Selfie KTP">
+                        </div>
+                    </div>
+                    <div class="modal-buttons" style="justify-content: flex-start;">
+                        <button class="btn-retro btn-green" onclick="handleApproveSeller('${profile.id}')">ACC Seller Baru 👍</button>
+                        <button class="btn-retro btn-red" onclick="handleRejectSeller('${profile.id}')">Tolak Berkas KTP ❌</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleApproveSeller(profileId) {
+            const profile = db.getProfileById(profileId);
+            if (!profile) return;
+
+            db.saveProfile({
+                id: profileId,
+                is_seller: true,
+                seller_status: 'active'
+            });
+
+            if (typeof db.sendPrivateChat === 'function') {
+                db.sendPrivateChat('admin-demo', profileId, `Selamat! 🎉 Pengajuan toko @${profile.store_name} Anda telah DISETUJUI oleh Admin RetroHub. Anda sekarang dapat mulai mengunggah koleksi mainan Anda di SellerHub! Selamat berjualan! 🚀`);
+            }
+
+            showToast("Seller Disetujui (ACC)", `Akun @${profile.store_name} sekarang resmi menjadi Seller RetroHub!`, "success");
+            renderSellerVerificationQueue();
+        }
+
+        function handleRejectSeller(profileId) {
+            const profile = db.getProfileById(profileId);
+            if (!profile) return;
+
+            showConfirm(
+                "Tolak Pengajuan Seller",
+                `Apakah Anda yakin ingin menolak berkas pendaftaran KTP dari @${profile.store_name}?\nPengguna ini akan dikembalikan menjadi akun Buyer biasa.`,
+                () => {
+                    db.saveProfile({
+                        id: profileId,
+                        is_seller: false,
+                        seller_status: null,
+                        ktp_photo_url: null,
+                        ktp_selfie_url: null
+                    });
+
+                    if (typeof db.sendPrivateChat === 'function') {
+                        db.sendPrivateChat('admin-demo', profileId, `Mohon maaf, pengajuan toko @${profile.store_name} Anda DITOLAK oleh Admin karena berkas KTP atau Selfie kurang jelas. Silakan lengkapi berkas dan ajukan kembali. 📄`);
+                    }
+
+                    showToast("Seller Ditolak", "Pengajuan toko dibatalkan dan status kembali menjadi buyer.", "info");
+                    renderSellerVerificationQueue();
+                }
+            );
+        }
+
+        // ==========================================================
+        // TAB 2: MODERASI PRODUK (FLAGGED BY WORD SENSOR)
+        // ==========================================================
+        function renderFlaggedProducts() {
+            const grid = document.getElementById('flagged-products-grid');
+            const products = db.getProducts().filter(p => p.flagged === true && p.status === 'active');
+
+            if (products.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #64748B; padding: 20px;">Katalog aman! Tidak ada barang dagangan yang mencurigakan.</p>`;
+                return;
+            }
+
+            grid.innerHTML = products.map(p => `
+                <div class="product-card" style="box-shadow: 2px 2px 0px var(--retro-dark);">
+                    <div class="discount-badge" style="background-color: var(--mario-yellow); color: var(--retro-dark);">TERFLAG ⚠️</div>
+                    <div class="image-container">
+                        <img src="${p.image_url}" alt="">
+                    </div>
+                    <div class="card-content">
+                        <div class="tags-row">
+                            <span class="tag loose" style="border-color: var(--mario-red); color: var(--mario-red);">FLAGGED</span>
+                            <span class="tag" style="border-color: var(--retro-dark); color: var(--retro-dark);">${p.sub_category}</span>
+                        </div>
+                        <div class="seller-name">${p.seller_name}</div>
+                        <h3 class="product-title" style="font-size: 0.7rem; height: 1.7rem; margin-bottom: 4px;">${p.title}</h3>
+                        <p style="font-size: 0.65rem; color: var(--mario-red); line-height: 1.2; margin-bottom: 12px;">
+                            *Ditemukan kata terlarang (makanan/hewan/narkoba/judi) dalam deskripsi.
+                        </p>
+                        <div class="modal-buttons" style="justify-content: space-between; margin-top: auto;">
+                            <button class="btn-retro btn-red" onclick="handleTakeDownProduct('${p.id}')" style="padding: 4px 8px; font-size: 0.65rem;">Take Down ❌</button>
+                            <button class="btn-retro btn-white" onclick="handleIgnoreFlagProduct('${p.id}')" style="padding: 4px 8px; font-size: 0.65rem;">Lolos ✅</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleTakeDownProduct(productId) {
+            db.updateProductStatus(productId, 'taken_down');
+            showToast("Produk Diturunkan ❌", "Barang dagangan berhasil dihapus secara paksa dari platform.", "error");
+            renderFlaggedProducts();
+        }
+
+        function handleIgnoreFlagProduct(productId) {
+            // Bersihkan flag di database lokal
+            const products = db.getProducts();
+            const index = products.findIndex(p => p.id === productId);
+            if (index !== -1) {
+                products[index].flagged = false;
+                localStorage.setItem('retrohub_products', JSON.stringify(products));
+            }
+            showToast("Moderasi Lolos ✅", "Produk dinyatakan layak dan flag dibersihkan.", "success");
+            renderFlaggedProducts();
+        }
+
+        // ==========================================================
+        // TAB 3: DISPUTE CENTER (SENGKETA REKBER VIDEO PREVIEW)
+        // ==========================================================
+        function initMockDisputedOrder() {
+            // Inisialisasi satu sengketa mockup jika tidak ada sengketa di database orders
+            const orders = db.getOrders();
+            const disputeOrderExists = orders.some(o => o.status === 'disputed');
+            
+            if (!disputeOrderExists) {
+                const mockDispute = {
+                    id: 'ord-dispute-demo',
+                    product_id: 'prod-3', // Game Boy DMG
+                    buyer_id: 'buyer-demo',
+                    seller_id: 'seller-1', // @NintendoStore
+                    price_deal: 680000,
+                    shipping_cost: 15000,
+                    admin_fee: 5000,
+                    total_payment: 700000,
+                    payment_status: 'paid',
+                    shipping_courier: 'JNT',
+                    tracking_number: 'JT-99123485',
+                    status: 'disputed',
+                    buyer_unboxing_video_url: 'unboxing_buyer_100mb.mp4',
+                    seller_packing_video_url: 'packing_seller.mp4'
+                };
+                orders.push(mockDispute);
+                localStorage.setItem('retrohub_orders', JSON.stringify(orders));
+            }
+        }
+
+        function renderDisputeQueue() {
+            initMockDisputedOrder();
+            const container = document.getElementById('dispute-list-container');
+            const disputedOrders = db.getOrders().filter(o => o.status === 'disputed');
+
+            if (disputedOrders.length === 0) {
+                container.innerHTML = `<div style="text-align:center;padding:32px;color:#64748B;font-size:0.85rem;border:2px dashed #CBD5E1;border-radius:8px;">✅ Tidak ada sengketa aktif saat ini.</div>`;
+                return;
+            }
+
+            container.innerHTML = disputedOrders.map(order => {
+                const product  = db.getProductById(order.product_id);
+                const buyer    = db.getProfileById(order.buyer_id);
+                const seller   = db.getProfileById(order.seller_id);
+                const buyerName  = buyer  ? '@' + buyer.store_name  : order.buyer_id;
+                const sellerName = seller ? '@' + seller.store_name : order.seller_id;
+                // Cari data dispute (bukti foto+video)
+                const dispute = db.getDisputeByOrderId ? db.getDisputeByOrderId(order.id) : null;
+
+                // ---- Baca riwayat chat buyer ↔ seller ----
+                const chatKey1 = `chat-${order.buyer_id}-${order.seller_id}`;
+                const chatKey2 = `chat-${order.seller_id}-${order.buyer_id}`;
+                const allChats = db.getChats ? db.getChats() : (JSON.parse(localStorage.getItem('retrohub_chats')) || []);
+                const chatLog  = allChats
+                    .filter(m => (m.sender_id === order.buyer_id && m.receiver_id === order.seller_id)
+                              || (m.sender_id === order.seller_id && m.receiver_id === order.buyer_id))
+                    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+                const chatHTML = chatLog.length === 0
+                    ? `<div style="font-size:0.72rem;color:#94A3B8;text-align:center;padding:12px 0;">Belum ada riwayat chat antara ${buyerName} dan ${sellerName}</div>`
+                    : chatLog.map(msg => {
+                        const isBuyer  = msg.sender_id === order.buyer_id;
+                        const isAdmin  = msg.sender_id === 'admin-demo';
+                        const senderLabel = isAdmin ? '🔑 Admin' : (isBuyer ? buyerName : sellerName);
+                        const bgColor  = isAdmin ? '#FEF9C3' : (isBuyer ? '#EFF6FF' : '#F0FDF4');
+                        const borderCol = isAdmin ? 'var(--mario-yellow)' : (isBuyer ? 'var(--mario-blue)' : 'var(--mario-green)');
+                        const dateStr  = new Date(msg.created_at).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' })
+                                       + ' ' + new Date(msg.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short' });
+                        return `<div style="margin-bottom:6px;padding:7px 9px;background:${bgColor};border-left:3px solid ${borderCol};border-radius:4px;">
+                            <div style="font-size:0.62rem;font-weight:bold;color:#374151;margin-bottom:2px;">${senderLabel} <span style="font-weight:normal;color:#94A3B8;">${dateStr}</span></div>
+                            <div style="font-size:0.72rem;color:#374151;line-height:1.4;">${msg.message}</div>
+                        </div>`;
+                    }).join('');
+
+                // ---- Riwayat admin → buyer & admin → seller ----
+                const adminBuyerLog  = allChats
+                    .filter(m => (m.sender_id === 'admin-demo' && m.receiver_id === order.buyer_id)
+                              || (m.sender_id === order.buyer_id && m.receiver_id === 'admin-demo'))
+                    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                const adminSellerLog = allChats
+                    .filter(m => (m.sender_id === 'admin-demo' && m.receiver_id === order.seller_id)
+                              || (m.sender_id === order.seller_id && m.receiver_id === 'admin-demo'))
+                    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+                function miniLog(msgs, selfId, label) {
+                    if (msgs.length === 0) return `<div style="font-size:0.68rem;color:#94A3B8;padding:6px 0;">Belum ada riwayat dengan ${label}</div>`;
+                    return msgs.slice(-5).map(m => {
+                        const isAdmin = m.sender_id === 'admin-demo';
+                        const bg = isAdmin ? '#FEF9C3' : '#F1F5F9';
+                        const align = isAdmin ? 'flex-end' : 'flex-start';
+                        return `<div style="display:flex;justify-content:${align};margin-bottom:3px;">
+                            <div style="max-width:80%;font-size:0.68rem;background:${bg};border-radius:5px;padding:4px 8px;line-height:1.4;">${m.message}</div>
+                        </div>`;
+                    }).join('');
+                }
+
+                return `
+                    <div class="dispute-card" id="dispute-${order.id}">
+                        <div class="verify-header">
+                            <span>⚖️ Sengketa #${order.id}</span>
+                            <span style="color: var(--mario-red);">⚠️ Menunggu Putusan Admin</span>
+                        </div>
+                        <div style="font-size: 0.8rem; margin-bottom: 12px; line-height: 1.6;">
+                            <div>📦 <strong>${product ? product.title : 'Produk'}</strong> — Rp${(order.price_deal||0).toLocaleString('id-ID')}</div>
+                            <div>👤 Pembeli: <strong>${buyerName}</strong> &nbsp;|&nbsp; 🏪 Penjual: <strong>${sellerName}</strong></div>
+                            ${order.cancel_reason ? `<div style="background:#FEF2F2;border-radius:4px;padding:4px 8px;font-size:0.72rem;margin-top:4px;">📝 Alasan komplain: ${order.cancel_reason}</div>` : ''}
+                        </div>
+
+                        <!-- Bukti foto + video dari dispute -->
+                        <div class="dispute-videos">
+                            <div class="dispute-video-box">
+                                <span style="font-size:0.65rem;font-weight:bold;color:var(--mario-red);display:block;margin-bottom:6px;">📸 FOTO BUKTI PEMBELI</span>
+                                ${dispute && dispute.photo_urls && dispute.photo_urls.length > 0
+                                    ? `<div style="display:flex;flex-wrap:wrap;gap:6px;">${dispute.photo_urls.map((url, i) => `
+                                        <a href="${url}" target="_blank" title="Foto bukti ${i+1}">
+                                            <img src="${url}" style="width:80px;height:80px;object-fit:cover;border:2px solid var(--retro-dark);border-radius:4px;" onerror="this.style.display='none'">
+                                        </a>`).join('')}</div>`
+                                    : `<div style="border:2px dashed #CBD5E1;border-radius:4px;padding:16px;text-align:center;font-size:0.72rem;color:#94A3B8;">📷 Belum ada foto bukti</div>`
+                                }
+                            </div>
+                            <div class="dispute-video-box">
+                                <span style="font-size:0.65rem;font-weight:bold;color:var(--mario-red);display:block;margin-bottom:6px;">🎥 VIDEO UNBOXING (Maks 50MB, tidak dipotong)</span>
+                                ${dispute && dispute.video_url
+                                    ? `<video src="${dispute.video_url}" controls style="width:100%;max-height:220px;border:2px solid var(--retro-dark);border-radius:4px;background:#000;"></video>
+                                       <div style="font-size:0.62rem;color:#475569;margin-top:3px;">📁 ${dispute.video_filename||'video.mp4'} — ${dispute.video_size_mb||'?'}MB</div>`
+                                    : `<div style="border:2px dashed #CBD5E1;border-radius:4px;padding:16px;text-align:center;font-size:0.72rem;color:#94A3B8;">📹 Belum ada video bukti</div>`
+                                }
+                            </div>
+                            <div class="dispute-video-box">
+                                <span style="font-size:0.65rem;font-weight:bold;color:var(--mario-blue);display:block;margin-bottom:6px;">VIDEO PACKING PENJUAL</span>
+                                <div style="border:2px solid var(--retro-dark);background:#FFFDF5;padding:20px;font-family:var(--font-retro);font-size:0.75rem;">
+                                    📹 packing_seller.mp4<br>
+                                    <span style="color:var(--mario-green);font-size:0.65rem;">[Bukti Video Autentik Terunggah]</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ===== CHAT BUYER ↔ SELLER (read-only) ===== -->
+                        <div style="margin:14px 0;border:2px solid var(--retro-dark);border-radius:6px;overflow:hidden;">
+                            <div style="background:var(--retro-dark);color:white;padding:7px 12px;font-size:0.72rem;font-weight:bold;display:flex;justify-content:space-between;align-items:center;cursor:pointer;"
+                                onclick="toggleDisputeChatLog('chat-log-${order.id}')">
+                                <span>💬 Riwayat Chat ${buyerName} ↔ ${sellerName} (${chatLog.length} pesan)</span>
+                                <span id="chat-log-toggle-${order.id}">▼</span>
+                            </div>
+                            <div id="chat-log-${order.id}" style="max-height:220px;overflow-y:auto;padding:10px;background:#FAFAFA;display:none;">
+                                ${chatHTML}
+                            </div>
+                        </div>
+
+                        <!-- ===== INTERVENSI ADMIN ===== -->
+                        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+                            <!-- Chat ke Buyer -->
+                            <div style="flex:1;min-width:220px;border:2px solid var(--mario-blue);border-radius:6px;overflow:hidden;">
+                                <div style="background:var(--mario-blue);color:white;padding:6px 10px;font-size:0.68rem;font-weight:bold;">
+                                    📩 Intervensi → ${buyerName} (${adminBuyerLog.length} pesan)
+                                </div>
+                                <div id="admin-buyer-log-${order.id}" style="max-height:120px;overflow-y:auto;padding:8px;background:#EFF6FF;font-size:0.68rem;">
+                                    ${miniLog(adminBuyerLog, 'admin-demo', buyerName)}
+                                </div>
+                                <div id="admin-file-prev-buyer-${order.id}" style="padding:0 6px;background:white;"></div>
+                                <div style="display:flex;gap:4px;padding:6px;background:white;border-top:1px solid #E2E8F0;align-items:center;">
+                                    <label title="Lampirkan foto/video (maks 20MB)" style="cursor:pointer;background:#F1F5F9;border:1.5px solid var(--retro-dark);border-radius:4px;padding:4px 7px;font-size:0.85rem;flex-shrink:0;">
+                                        📎<input type="file" id="admin-file-buyer-${order.id}" accept="image/*,video/*" style="display:none;"
+                                            onchange="adminPreviewFile('${order.id}','buyer')">
+                                    </label>
+                                    <input type="text" id="admin-msg-buyer-${order.id}"
+                                        placeholder="Pesan ke pembeli..."
+                                        style="flex:1;padding:5px 8px;border:1.5px solid var(--retro-dark);border-radius:4px;font-size:0.7rem;outline:none;"
+                                        onkeydown="if(event.key==='Enter')adminSendDispute('${order.id}','${order.buyer_id}','buyer')">
+                                    <button class="btn-retro btn-blue" onclick="adminSendDispute('${order.id}','${order.buyer_id}','buyer')"
+                                        style="font-size:0.65rem;padding:4px 10px;">Kirim</button>
+                                </div>
+                            </div>
+                            <!-- Chat ke Seller -->
+                            <div style="flex:1;min-width:220px;border:2px solid var(--mario-green);border-radius:6px;overflow:hidden;">
+                                <div style="background:var(--mario-green);color:white;padding:6px 10px;font-size:0.68rem;font-weight:bold;">
+                                    📩 Intervensi → ${sellerName} (${adminSellerLog.length} pesan)
+                                </div>
+                                <div id="admin-seller-log-${order.id}" style="max-height:120px;overflow-y:auto;padding:8px;background:#F0FDF4;font-size:0.68rem;">
+                                    ${miniLog(adminSellerLog, 'admin-demo', sellerName)}
+                                </div>
+                                <div id="admin-file-prev-seller-${order.id}" style="padding:0 6px;background:white;"></div>
+                                <div style="display:flex;gap:4px;padding:6px;background:white;border-top:1px solid #E2E8F0;align-items:center;">
+                                    <label title="Lampirkan foto/video (maks 20MB)" style="cursor:pointer;background:#F1F5F9;border:1.5px solid var(--retro-dark);border-radius:4px;padding:4px 7px;font-size:0.85rem;flex-shrink:0;">
+                                        📎<input type="file" id="admin-file-seller-${order.id}" accept="image/*,video/*" style="display:none;"
+                                            onchange="adminPreviewFile('${order.id}','seller')">
+                                    </label>
+                                    <input type="text" id="admin-msg-seller-${order.id}"
+                                        placeholder="Pesan ke penjual..."
+                                        style="flex:1;padding:5px 8px;border:1.5px solid var(--retro-dark);border-radius:4px;font-size:0.7rem;outline:none;"
+                                        onkeydown="if(event.key==='Enter')adminSendDispute('${order.id}','${order.seller_id}','seller')">
+                                    <button class="btn-retro btn-green" onclick="adminSendDispute('${order.id}','${order.seller_id}','seller')"
+                                        style="font-size:0.65rem;padding:4px 10px;">Kirim</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detail alasan & status dispute -->
+                        ${dispute ? `
+                        <div style="background:#FEF2F2;border:1.5px solid #FECACA;border-radius:6px;padding:10px;font-size:0.72rem;margin-top:8px;">
+                            <div style="font-weight:700;color:#991B1B;margin-bottom:3px;">📋 Alasan: ${dispute.reason||'-'}</div>
+                            <div style="color:#374151;line-height:1.5;white-space:pre-wrap;">${dispute.detail||'-'}</div>
+                            <div style="color:#94A3B8;font-size:0.62rem;margin-top:4px;">🕐 Diajukan: ${new Date(dispute.created_at).toLocaleString('id-ID')} • ${dispute.photo_count||0} foto + video ${dispute.video_size_mb||'?'}MB</div>
+                            ${dispute.status !== 'pending' ? `<div style="margin-top:6px;font-weight:700;padding:4px 8px;border-radius:4px;background:${dispute.status==='buyer_won'?'#FEE2E2':'#DCFCE7'};color:${dispute.status==='buyer_won'?'#DC2626':'#16A34A'};">⚖️ Putusan: ${dispute.status==='buyer_won'?'Pembeli Menang → Refund':'Penjual Menang → Dana Cair'}</div>` : ''}
+                            ${dispute.admin_note ? `<div style="margin-top:4px;background:#FEF9C3;border-radius:3px;padding:4px 7px;font-size:0.68rem;">📝 Catatan Admin: ${dispute.admin_note}</div>` : ''}
+                        </div>` : '<div style="background:#FEF9C3;border:1.5px dashed #FCD34D;border-radius:4px;padding:8px;font-size:0.7rem;color:#92400E;margin-top:8px;">⚠️ Data bukti komplain belum ditemukan di sistem (mungkin komplain lama).</div>'}
+
+                        <!-- Catatan admin -->
+                        ${dispute && dispute.status === 'pending' ? `
+                        <div style="margin-top:10px;">
+                            <label style="font-family:var(--font-retro);font-size:0.65rem;font-weight:700;display:block;margin-bottom:3px;">📝 Catatan Putusan Admin <span style="font-weight:400;">(akan dikirim ke buyer & seller)</span>:</label>
+                            <textarea id="admin-note-${order.id}" placeholder="Misal: Bukti video menunjukkan barang rusak saat diterima. Refund disetujui karena kondisi tidak sesuai deskripsi seller..."
+                                style="width:100%;border:2px solid var(--retro-dark);border-radius:4px;padding:7px;font-size:0.72rem;resize:vertical;min-height:55px;box-sizing:border-box;font-family:sans-serif;"></textarea>
+                        </div>` : ''}
+
+                        <!-- Tombol Putusan -->
+                        ${!dispute || dispute.status === 'pending' ? `
+                        <div class="modal-buttons" style="justify-content:flex-start;margin-top:10px;">
+                            <button class="btn-retro btn-green" onclick="handleResolveDispute('${order.id}','seller')">Cairkan Saldo Ke Penjual 💰</button>
+                            <button class="btn-retro btn-red"   onclick="handleResolveDispute('${order.id}','buyer')">Refund Penuh ke Pembeli 💸</button>
+                        </div>` : `<div style="margin-top:10px;padding:8px;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:4px;font-size:0.72rem;font-weight:700;color:#166534;">✅ Sengketa ini sudah diselesaikan.</div>`}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleDisputeChatLog(id) {
+            const el = document.getElementById(id);
+            const orderId = id.replace('chat-log-', '');
+            const tog = document.getElementById('chat-log-toggle-' + orderId);
+            if (!el) return;
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                if (tog) tog.textContent = '▲';
+                // Scroll ke bawah (pesan terbaru)
+                el.scrollTop = el.scrollHeight;
+            } else {
+                el.style.display = 'none';
+                if (tog) tog.textContent = '▼';
+            }
+        }
+
+        function adminPreviewFile(orderId, side) {
+            const fileInputId = `admin-file-${side}-${orderId}`;
+            const prevId = `admin-file-prev-${side}-${orderId}`;
+            const fileInput = document.getElementById(fileInputId);
+            const prevEl    = document.getElementById(prevId);
+            if (!fileInput || !fileInput.files[0] || !prevEl) return;
+
+            const file = fileInput.files[0];
+            const MAX_MB = 20;
+            if (file.size > MAX_MB * 1024 * 1024) {
+                showAlert('File Terlalu Besar ❌', `Maks ${MAX_MB}MB. File Anda: ${(file.size/1024/1024).toFixed(1)}MB`);
+                fileInput.value = '';
+                return;
+            }
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+            if (!isImage && !isVideo) {
+                showAlert('Format Tidak Didukung ❌', 'Hanya foto atau video.');
+                fileInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const sizeMB = (file.size/1024/1024).toFixed(1);
+                const thumb  = isImage
+                    ? `<img src="${e.target.result}" style="height:44px;border-radius:4px;border:1.5px solid var(--retro-dark);object-fit:cover;">`
+                    : `<video src="${e.target.result}" style="height:44px;border-radius:4px;border:1.5px solid var(--retro-dark);"></video>`;
+                prevEl.innerHTML = `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;">
+                    ${thumb}
+                    <span style="font-size:0.6rem;color:#64748B;">${file.name.substring(0,20)} (${sizeMB}MB)</span>
+                    <button onclick="document.getElementById('${fileInputId}').value='';document.getElementById('${prevId}').innerHTML='';"
+                        style="background:#FEE2E2;border:none;border-radius:3px;cursor:pointer;padding:2px 5px;font-size:0.6rem;color:#DC2626;">✖ Hapus</button>
+                </div>`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function adminSendDispute(orderId, targetId, side) {
+            const inputId   = `admin-msg-${side}-${orderId}`;
+            const logId     = `admin-${side}-log-${orderId}`;
+            const fileInputId = `admin-file-${side}-${orderId}`;
+            const input     = document.getElementById(inputId);
+            const logEl     = document.getElementById(logId);
+            const fileInput = document.getElementById(fileInputId);
+            if (!input) return;
+
+            const text = input.value.trim();
+            const file = fileInput && fileInput.files[0];
+            if (!text && !file) return;
+
+            function doSend(mediaUrl, mediaType) {
+                db.sendPrivateChat('admin-demo', targetId, text
+                    ? `[⚖️ Admin - Sengketa #${orderId}] ${text}`
+                    : `[⚖️ Admin - Sengketa #${orderId}] (melampirkan ${mediaType === 'image' ? 'foto' : 'video'})`,
+                    mediaUrl, mediaType
+                );
+                input.value = '';
+                if (fileInput) fileInput.value = '';
+
+                // Clear preview
+                const prevEl = document.getElementById(`admin-file-prev-${side}-${orderId}`);
+                if (prevEl) prevEl.innerHTML = '';
+
+                // Refresh mini log
+                if (logEl) {
+                    const allChats = JSON.parse(localStorage.getItem('retrohub_chats')) || [];
+                    const order    = db.getOrderById(orderId);
+                    if (!order) return;
+                    const selfId   = side === 'buyer' ? order.buyer_id : order.seller_id;
+                    const msgs = allChats
+                        .filter(m => (m.sender_id === 'admin-demo' && m.receiver_id === selfId)
+                                  || (m.sender_id === selfId && m.receiver_id === 'admin-demo'))
+                        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                        .slice(-5);
+                    logEl.innerHTML = msgs.map(m => {
+                        const isAdmin = m.sender_id === 'admin-demo';
+                        const bg = isAdmin ? '#FEF9C3' : '#F1F5F9';
+                        const align = isAdmin ? 'flex-end' : 'flex-start';
+                        const mediaEl = m.media_url
+                            ? (m.media_type === 'image'
+                                ? `<img src="${m.media_url}" style="max-width:80px;max-height:60px;border-radius:4px;display:block;margin-top:3px;border:1px solid #CBD5E1;">`
+                                : `<video src="${m.media_url}" style="max-width:100px;border-radius:4px;display:block;margin-top:3px;" controls preload="metadata"></video>`)
+                            : '';
+                        return `<div style="display:flex;justify-content:${align};margin-bottom:3px;">
+                            <div style="max-width:85%;font-size:0.68rem;background:${bg};border-radius:5px;padding:4px 8px;line-height:1.4;">${m.message}${mediaEl}</div>
+                        </div>`;
+                    }).join('');
+                    logEl.scrollTop = logEl.scrollHeight;
+                }
+                showToast('Pesan Terkirim ✅', `Pesan berhasil dikirim ke ${side === 'buyer' ? 'Pembeli' : 'Penjual'}.`, 'success');
+            }
+
+            if (file) {
+                const MAX_MB = 20;
+                if (file.size > MAX_MB * 1024 * 1024) {
+                    showAlert('File Terlalu Besar ❌', `Maks ${MAX_MB}MB. File Anda: ${(file.size/1024/1024).toFixed(1)}MB`);
+                    if (fileInput) fileInput.value = '';
+                    return;
+                }
+                const isImage = file.type.startsWith('image/');
+                const isVideo = file.type.startsWith('video/');
+                if (!isImage && !isVideo) {
+                    showAlert('Format Tidak Didukung ❌', 'Hanya foto atau video yang bisa dilampirkan.');
+                    if (fileInput) fileInput.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = e => doSend(e.target.result, isImage ? 'image' : 'video');
+                reader.readAsDataURL(file);
+            } else {
+                doSend(null, null);
+            }
+        }
+
+        function handleResolveDispute(orderId, winner) {
+            // Cek apakah ada catatan admin
+            const adminNoteEl = document.getElementById(`admin-note-${orderId}`);
+            const adminNote = adminNoteEl ? adminNoteEl.value.trim() : '';
+            showConfirm(
+                "Konfirmasi Putusan Sengketa ⚖️",
+                `Menangkan pihak ${winner === 'seller' ? '🏪 PENJUAL' : '👤 PEMBELI'}? Dana akan dicairkan/direfund. Pastikan Anda sudah memeriksa semua bukti foto dan video.`,
+                () => {
+                    const order = db.getOrderById(orderId);
+                    if (order) {
+                        // Update dispute status
+                        const dispute = db.getDisputeByOrderId ? db.getDisputeByOrderId(orderId) : null;
+                        if (dispute && db.updateDisputeStatus) {
+                            db.updateDisputeStatus(dispute.id, winner === 'seller' ? 'seller_won' : 'buyer_won', adminNote);
+                        }
+                        const targetStatus = winner === 'seller' ? 'completed' : 'refunded';
+                        db.updateOrderStatus(orderId, targetStatus);
+                        
+                        // Apply dispute resolution penalties (+2 points) to the losing party
+                        if (winner === 'seller') {
+                            const buyerProfile = db.getProfileById(order.buyer_id);
+                            if (buyerProfile) {
+                                buyerProfile.penalty_points = (buyerProfile.penalty_points || 0) + 2;
+                                if (!buyerProfile.last_penalty_decay || buyerProfile.penalty_points === 2) {
+                                    buyerProfile.last_penalty_decay = new Date().toISOString();
+                                }
+                                db.saveProfile(buyerProfile);
+                                db.sendPrivateChat('admin-demo', order.buyer_id, `⚖️ Keputusan Sengketa: Anda mendapatkan penalti 2 poin karena sengketa #${orderId} dimenangkan oleh penjual (laporan sengketa Anda ditolak). Total penalti: ${buyerProfile.penalty_points}/6.`);
+                            }
+                        } else {
+                            const sellerProfile = db.getProfileById(order.seller_id);
+                            if (sellerProfile) {
+                                sellerProfile.penalty_points = (sellerProfile.penalty_points || 0) + 2;
+                                if (!sellerProfile.last_penalty_decay || sellerProfile.penalty_points === 2) {
+                                    sellerProfile.last_penalty_decay = new Date().toISOString();
+                                }
+                                db.saveProfile(sellerProfile);
+                                db.sendPrivateChat('admin-demo', order.seller_id, `⚖️ Keputusan Sengketa: Anda mendapatkan penalti 2 poin karena sengketa #${orderId} dimenangkan oleh pembeli (laporan sengketa dimenangkan pembeli). Total penalti: ${sellerProfile.penalty_points}/6.`);
+                            }
+                        }
+
+                        const winnerLabel = winner === 'seller' ? 'Penjual' : 'Pembeli';
+                        const noteAppend = adminNote ? `
+
+📝 Catatan Admin: "${adminNote}"` : '';
+                        const notifBuyer  = winner === 'seller'
+                            ? `⚖️ Putusan Sengketa #${orderId}: Penjual MENANG. Dana tidak dikembalikan ke Anda.${noteAppend}`
+                            : `⚖️ Putusan Sengketa #${orderId}: Pembeli MENANG. Dana berhasil di-refund ke Saldo Dompet Anda.${noteAppend}`;
+                        const notifSeller = winner === 'seller'
+                            ? `⚖️ Putusan Sengketa #${orderId}: Anda MENANG. Dana transaksi dicairkan ke saldo Anda.${noteAppend}`
+                            : `⚖️ Putusan Sengketa #${orderId}: Pembeli MENANG. Dana direfund ke pembeli, tidak dicairkan ke Anda.${noteAppend}`;
+                        db.sendPrivateChat('admin-demo', order.buyer_id,  notifBuyer);
+                        db.sendPrivateChat('admin-demo', order.seller_id, notifSeller);
+                        showToast('Putusan Dikunci ⚖️', `Sengketa #${orderId} diselesaikan. Pemenang: ${winnerLabel}.`, winner === 'seller' ? 'success' : 'warning');
+                    }
+                    renderDisputeQueue();
+                }
+            );
+        }
+
+        // ==========================================================
+        // TAB 4: KELOLA KATEGORI (CRUD DINAMIS)
+        // ==========================================================
+        function renderCategoriesTable() {
+            const tbody = document.getElementById('categories-table-body');
+            const categories = db.getCategories();
+
+            tbody.innerHTML = categories.map(cat => `
+                <tr>
+                    <td style="font-size: 1.4rem; text-align: center;">${cat.icon}</td>
+                    <td style="font-family: var(--font-retro); font-weight: bold;">${cat.name}</td>
+                    <td style="font-size: 0.8rem; color: #475569;">
+                        ${cat.sub_categories.map(sub => `<span class="tag bib" style="margin: 2px; display: inline-block;">${sub}</span>`).join('')}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleAddCategory() {
+            const name = document.getElementById('cat-name').value;
+            const icon = document.getElementById('cat-icon').value;
+            const subsText = document.getElementById('cat-subs').value;
+
+            // Pisahkan sub kategori dengan koma menjadi array
+            const subCategories = subsText.split(',').map(s => s.trim()).filter(s => s !== '');
+
+            db.saveCategory({
+                name: name,
+                icon: icon,
+                sub_categories: subCategories
+            });
+
+            showToast("Kategori Baru Disimpan", `Kategori "${name}" berhasil ditambahkan secara live!`, "success");
+            
+            // Reset Form & Re-render
+            document.getElementById('add-category-form').reset();
+            renderCategoriesTable();
+        }
+
+        // ==========================================================
+        // TAB 5: KELOLA BANNER
+        // ==========================================================
+        // ==========================================================
+        // TAB 5: KELOLA BANNER
+        // ==========================================================
+        window.previewBannerImage = function() {
+            const fileInput = document.getElementById('banner-file-input');
+            const urlInput = document.getElementById('banner-url-input');
+            const previewContainer = document.getElementById('banner-preview-container');
+            const previewImg = document.getElementById('banner-preview-img');
+
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else if (urlInput.value.trim() !== '') {
+                previewImg.src = urlInput.value.trim();
+                previewContainer.style.display = 'block';
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        };
+
+        window.handleAddBanner = function() {
+            const fileInput = document.getElementById('banner-file-input');
+            const urlInput = document.getElementById('banner-url-input');
+            const linkInput = document.getElementById('banner-link-input');
+
+            const saveBannerData = (imageUrl) => {
+                db.saveBanner({
+                    image_url: imageUrl,
+                    link_url: linkInput.value.trim() || null
+                });
+                showToast("Banner Tersimpan", "Banner promo/event baru berhasil ditambahkan!", "success");
+                
+                // Reset form
+                document.getElementById('add-banner-form').reset();
+                document.getElementById('banner-preview-container').style.display = 'none';
+                renderActiveBanners();
+            };
+
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    saveBannerData(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            } else if (urlInput.value.trim() !== '') {
+                saveBannerData(urlInput.value.trim());
+            } else {
+                showAlert("Gagal Simpan ⚠️", "Harap pilih file gambar atau masukkan URL gambar banner!");
+            }
+        };
+
+        window.renderActiveBanners = function() {
+            const container = document.getElementById('active-banners-container');
+            const banners = db.getBanners();
+
+            if (banners.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748B; padding: 20px; font-size: 0.8rem;">Tidak ada banner aktif. Slider di Beranda akan disembunyikan. 📭</p>`;
+                return;
+            }
+
+            container.innerHTML = banners.map(b => `
+                <div style="border: 2px solid var(--retro-dark); border-radius: 6px; padding: 12px; background-color: #F8FAFC; box-shadow: 2px 2px 0px var(--retro-dark); display: flex; flex-direction: column; gap: 8px;">
+                    <div style="border: 1.5px solid var(--retro-dark); border-radius: 4px; overflow: hidden; height: 100px; background-color: #E2E8F0;">
+                        <img src="${b.image_url}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div style="font-size: 0.75rem; color: #334155; word-break: break-all;">
+                        <strong>🔗 Link:</strong> ${b.link_url ? `<a href="${b.link_url}" target="_blank" style="color: var(--mario-blue); font-weight: bold;">${b.link_url}</a>` : '<span style="color: #94A3B8; font-style: italic;">Tidak ada hyperlink</span>'}
+                    </div>
+                    <button class="btn-retro btn-red" onclick="handleDeleteBanner('${b.id}')" style="padding: 6px 12px; font-size: 0.7rem; align-self: flex-end;">Hapus Banner ❌</button>
+                </div>
+            `).join('');
+        };
+
+        window.handleDeleteBanner = function(id) {
+            showConfirm("Hapus Banner? 🖼️", "Apakah Anda yakin ingin menghapus banner aktif ini?", () => {
+                db.deleteBanner(id);
+                showToast("Banner Dihapus ❌", "Banner berhasil dihapus dari platform.", "warning");
+                renderActiveBanners();
+            });
+        };
+
+        // ==========================================================
+        // TAB 6: KELOLA SELLER
+        // ==========================================================
+        window.renderSellersList = async function() {
+            const container = document.getElementById('sellers-list-container');
+            let profiles = db.getProfiles();
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('profiles').select('*');
+                    if (!error && data) {
+                        profiles = data;
+                        localStorage.setItem('retrohub_profiles', JSON.stringify(data));
+                    }
+                } catch(e) {}
+            }
+            
+            const searchInput = document.getElementById('seller-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const roleFilter = document.getElementById('user-role-filter')?.value || 'all';
+
+            let users = profiles;
+
+            if (roleFilter === 'seller') {
+                users = users.filter(p => p.is_seller && p.seller_status === 'active');
+            } else if (roleFilter === 'buyer') {
+                users = users.filter(p => !p.is_seller || p.seller_status !== 'active');
+            } else if (roleFilter === 'admin') {
+                users = users.filter(p => p.is_admin);
+            }
+
+            if (searchQuery) {
+                users = users.filter(user => 
+                    (user.store_name && user.store_name.toLowerCase().includes(searchQuery)) ||
+                    (user.full_name && user.full_name.toLowerCase().includes(searchQuery)) ||
+                    (user.owner_name && user.owner_name.toLowerCase().includes(searchQuery)) ||
+                    (user.id && user.id.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            const products = db.getProducts();
+            const orders = db.getOrders();
+
+            if (users.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748B; padding: 20px;">Belum ada pengguna yang aktif terdaftar.</p>`;
+                return;
+            }
+
+            container.innerHTML = users.map(user => {
+                const userProducts = products.filter(p => p.seller_id === user.id);
+                const ratingVal = user.rating || 4.5;
+                const reviewsCount = user.reviews_count || 10;
+                const warnings = user.warning_count || 0;
+                const isBanned = user.is_banned || false;
+                const roleText = user.is_admin ? 'Admin 🔑' : user.is_seller ? 'Seller 🏪' : 'Buyer 👤';
+
+                const walletBalance = user.wallet_balance || 0;
+                const sellerBalance = user.seller_balance || 0;
+
+                const userUnpaidOrders = orders.filter(o => {
+                    const isUserInvolved = o.buyer_id === user.id || o.seller_id === user.id;
+                    const isUnpaid = ['waiting_payment', 'pending_payment'].includes(o.status);
+                    return isUserInvolved && isUnpaid;
+                });
+
+                let unpaidOrdersHTML = '';
+                if (userUnpaidOrders.length > 0) {
+                    unpaidOrdersHTML = userUnpaidOrders.map(o => {
+                        const product = db.getProductById(o.product_id);
+                        const isBuyer = o.buyer_id === user.id;
+                        const roleInOrder = isBuyer ? 'Pembeli' : 'Penjual';
+                        const timeLimit = o.payment_expiry ? new Date(o.payment_expiry).toLocaleString('id-ID') : 'N/A';
+                        return `<div style="background: #FFF5F5; border: 1.5px solid var(--mario-red); padding: 6px; border-radius: 4px; margin-bottom: 6px; font-size: 0.75rem;">
+                            <strong>${o.id}</strong> - ${product ? product.title : 'Produk'} (${roleInOrder})<br>
+                            Nominal: <strong style="color: var(--mario-red);">Rp${Number(o.total_price || 0).toLocaleString('id-ID')}</strong> | Batas: <strong>${timeLimit}</strong>
+                        </div>`;
+                    }).join('');
+                } else {
+                    unpaidOrdersHTML = `<span style="color: var(--mario-green); font-weight: bold;">Tidak ada pesanan belum dibayar 🟢</span>`;
+                }
+
+                let balanceHTML = `<p><strong>Saldo Dompet Refund:</strong> <span style="font-family: var(--font-number); color: var(--mario-green); font-weight: bold;">Rp${walletBalance.toLocaleString('id-ID')}</span></p>`;
+                if (user.is_seller && user.seller_status === 'active') {
+                    const sellerCompletedOrders = orders.filter(o => o.seller_id === user.id && o.status === 'completed');
+                    const sellerWds = db.getWithdrawals().filter(w => w.user_id === user.id);
+                    const totalAvailable = sellerCompletedOrders.filter(o => !o.withdrawn_status || o.withdrawn_status === 'available').reduce((sum, o) => sum + Number(o.price_deal || o.price || 0) + Number(o.shipping_cost || 0), 0);
+                    const totalProcessing = sellerWds.filter(w => ['pending', 'processing'].includes(w.status)).reduce((sum, w) => sum + Number(w.amount), 0);
+                    balanceHTML += `<p><strong>Saldo Toko Seller:</strong> <span style="font-family: var(--font-number); color: var(--mario-blue); font-weight: bold;">Rp${totalAvailable.toLocaleString('id-ID')}</span> <span style="font-size: 0.7rem; color: #64748B;">(Diproses: Rp${totalProcessing.toLocaleString('id-ID')})</span></p>`;
+                }
+
+                let actionButtonsHTML = '';
+                if (user.is_seller) {
+                    actionButtonsHTML += `<button class="btn-retro btn-white" onclick="viewSellerKatalog('${user.id}')" style="font-size: 0.75rem; padding: 6px 12px;">🎮 Lihat Katalog</button> `;
+                }
+                actionButtonsHTML += `
+                    <button class="btn-retro btn-yellow" onclick="handleWarningSeller('${user.id}')" style="font-size: 0.75rem; padding: 6px 12px;" ${isBanned ? 'disabled' : ''}>⚠️ Beri Peringatan</button>
+                    <button class="btn-retro ${isBanned ? 'btn-green' : 'btn-red'}" onclick="handleToggleBanSeller('${user.id}')" style="font-size: 0.75rem; padding: 6px 12px;">
+                        ${isBanned ? '🟢 Buka Blokir (Unban)' : '🚫 Blokir Akun (Ban)'}
+                    </button>
+                `;
+
+                return `
+                    <div class="verify-card" style="border-left: 6px solid ${isBanned ? 'var(--mario-red)' : 'var(--mario-green)'}; background-color: #FFFFFF;">
+                        <div class="verify-header">
+                            <span style="font-family: var(--font-retro); font-size: 1.1rem; color: ${isBanned ? 'var(--mario-red)' : 'var(--mario-blue)'};">
+                                @${user.store_name || user.username || user.id} ${isBanned ? '(BANNED 🚫)' : '(Aktif 🟢)'}
+                            </span>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <span style="font-size: 0.75rem; background-color: var(--mario-yellow); color: var(--retro-dark); padding: 2px 6px; border: 1.5px solid var(--retro-dark); border-radius: 4px; font-weight: bold;">
+                                    ${roleText}
+                                </span>
+                                <span style="font-size: 0.75rem; background-color: var(--retro-light-gray); padding: 2px 8px; border-radius: 4px; font-family: var(--font-number); font-weight: bold;">
+                                    ID: ${user.id}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; font-size: 0.8rem; line-height: 1.4; margin-bottom: 12px;">
+                            <div>
+                                <p><strong>Nama Lengkap:</strong> ${user.full_name || user.owner_name || '-'}</p>
+                                <p><strong>Kontak WA:</strong> ${user.phone_number || '08123456789'} <a href="https://wa.me/${user.phone_number || '08123456789'}" target="_blank" style="margin-left: 4px; color: var(--mario-green); font-weight: bold;">💬 Chat WA</a></p>
+                                <p><strong>Lokasi Asal:</strong> ${user.address_kecamatan || 'Menteng'}, ${user.address_kelurahan || ''} (${user.address_detail || ''})</p>
+                                ${balanceHTML}
+                            </div>
+                            <div style="border-left: 1.5px dashed var(--retro-light-gray); padding-left: 16px; max-height: 200px; overflow-y: auto;">
+                                <h4 style="margin: 0 0 8px 0; font-size: 0.8rem; border-bottom: 1px dashed #CCC; padding-bottom: 4px;">Pesanan Belum Bayar:</h4>
+                                ${unpaidOrdersHTML}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            ${actionButtonsHTML}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.renderWithdrawQueue = function() {
+            const container = document.getElementById('withdraw-queue-container');
+            if (!container) return;
+
+            const withdrawals = db.getWithdrawals();
+            const searchInput = document.getElementById('wd-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const statusFilter = document.getElementById('wd-status-filter')?.value || 'all';
+            const typeFilter = document.getElementById('wd-type-filter')?.value || 'all';
+
+            let filteredWds = withdrawals;
+
+            if (statusFilter !== 'all') {
+                filteredWds = filteredWds.filter(w => w.status === statusFilter);
+            }
+            if (typeFilter !== 'all') {
+                filteredWds = filteredWds.filter(w => w.type === typeFilter);
+            }
+
+            if (searchQuery) {
+                filteredWds = filteredWds.filter(w => {
+                    const user = db.getProfileById(w.user_id);
+                    const userName = user ? (user.store_name || user.owner_name || '').toLowerCase() : '';
+                    return (w.id && w.id.toLowerCase().includes(searchQuery)) ||
+                           (w.bank_name && w.bank_name.toLowerCase().includes(searchQuery)) ||
+                           (w.account_number && w.account_number.toLowerCase().includes(searchQuery)) ||
+                           (w.account_name && w.account_name.toLowerCase().includes(searchQuery)) ||
+                           userName.includes(searchQuery);
+                });
+            }
+
+            filteredWds.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            if (filteredWds.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748B; padding: 20px;">Tidak ada antrean penarikan dana.</p>`;
+                return;
+            }
+
+            container.innerHTML = filteredWds.map(w => {
+                const user = db.getProfileById(w.user_id);
+                const userDisplayName = user ? `@${user.store_name || user.username} (${user.is_seller ? 'Seller' : 'Buyer'})` : `ID: ${w.user_id}`;
+                const dateStr = new Date(w.created_at).toLocaleString('id-ID');
+                const amountStr = Number(w.amount).toLocaleString('id-ID');
+
+                let statusBadge = '';
+                if (w.status === 'pending') statusBadge = '<span class="tag loose">Pending ⏳</span>';
+                else if (w.status === 'processing') statusBadge = '<span class="tag in_progress" style="background-color: var(--mario-blue); color: white;">Diproses 🔄</span>';
+                else if (w.status === 'success') {
+                    if (w.deduction_amount > 0) {
+                        statusBadge = '<span class="tag in_progress" style="background-color: var(--mario-yellow); color: var(--retro-dark); font-weight: bold; border: 1.5px solid var(--retro-dark);">Sebagian ⚠️</span>';
+                    } else {
+                        statusBadge = '<span class="tag success" style="background-color: var(--mario-green); color: white;">Berhasil ✅</span>';
+                    }
+                }
+                else if (w.status === 'rejected') statusBadge = '<span class="tag dispute" style="background-color: var(--mario-red); color: white;">Ditolak ❌</span>';
+
+                let linkedDetailsHTML = '';
+                if (w.type === 'seller_balance' && w.order_ids && w.order_ids.length > 0) {
+                    const orderIds = w.order_ids;
+                    linkedDetailsHTML = `<div style="margin-top: 8px; font-size: 0.75rem; border-top: 1px dashed #CCC; padding-top: 6px;">
+                        <strong>Pesanan Terkait Penjualan:</strong>
+                        <ul style="margin: 4px 0 0 12px; padding: 0;">
+                            ${orderIds.map(oid => {
+                                const ord = db.getOrderById(oid);
+                                const prod = ord ? db.getProductById(ord.product_id) : null;
+                                return `<li>Order ID: <strong>${oid}</strong> - ${prod ? prod.title : 'Produk'} (Rp${Number(ord ? ord.total_price : 0).toLocaleString('id-ID')})</li>`;
+                            }).join('')}
+                        </ul>
+                    </div>`;
+                }
+
+                let actionsHTML = '';
+                if (w.status === 'pending') {
+                    actionsHTML = `
+                        <button class="btn-retro btn-blue" onclick="handleUpdateWDStatus('${w.id}', 'processing')" style="font-size: 0.7rem; padding: 4px 8px;">🔄 Proses</button>
+                        <button class="btn-retro btn-green" onclick="handleUpdateWDStatus('${w.id}', 'success')" style="font-size: 0.7rem; padding: 4px 8px;">✅ Setujui Penuh</button>
+                        <button class="btn-retro btn-yellow" onclick="openPartialWithdrawModal('${w.id}')" style="font-size: 0.7rem; padding: 4px 8px; background-color: var(--mario-yellow); color: var(--retro-dark);">💸 Setujui Sebagian</button>
+                        <button class="btn-retro btn-red" onclick="openRejectWithdrawModal('${w.id}')" style="font-size: 0.7rem; padding: 4px 8px;">❌ Tolak</button>
+                    `;
+                } else if (w.status === 'processing') {
+                    actionsHTML = `
+                        <button class="btn-retro btn-green" onclick="handleUpdateWDStatus('${w.id}', 'success')" style="font-size: 0.7rem; padding: 4px 8px;">✅ Setujui Penuh</button>
+                        <button class="btn-retro btn-yellow" onclick="openPartialWithdrawModal('${w.id}')" style="font-size: 0.7rem; padding: 4px 8px; background-color: var(--mario-yellow); color: var(--retro-dark);">💸 Setujui Sebagian</button>
+                        <button class="btn-retro btn-red" onclick="openRejectWithdrawModal('${w.id}')" style="font-size: 0.7rem; padding: 4px 8px;">❌ Tolak</button>
+                    `;
+                } else {
+                    actionsHTML = `<span style="font-size: 0.75rem; color: #64748B;">Selesai diproses pada ${new Date(w.updated_at || w.created_at).toLocaleString('id-ID')}</span>`;
+                }
+
+                const amountDisplayHTML = w.deduction_amount > 0 
+                    ? `<strong style="color: var(--mario-green); font-size: 0.95rem; font-family: var(--font-number);">Rp${w.amount.toLocaleString('id-ID')}</strong> 
+                       <span style="font-size:0.75rem; text-decoration:line-through; color: #94A3B8; margin-left: 6px;">Awal: Rp${w.original_amount.toLocaleString('id-ID')}</span> 
+                       <span style="font-size:0.75rem; color: var(--mario-red); font-weight: bold; margin-left: 6px;">(Potong: -Rp${w.deduction_amount.toLocaleString('id-ID')})</span>`
+                    : `<strong style="color: var(--mario-red); font-size: 0.95rem; font-family: var(--font-number);">Rp${amountStr}</strong>`;
+
+                return `
+                    <div class="verify-card" style="border-left: 6px solid ${w.status === 'success' ? 'var(--mario-green)' : (w.status === 'rejected' ? 'var(--mario-red)' : 'var(--mario-yellow)')}; background-color: #FFFFFF;">
+                        <div class="verify-header">
+                            <span style="font-family: var(--font-retro); font-size: 1rem; color: var(--retro-dark);">
+                                Penarikan ${w.type === 'seller_balance' ? 'Dana Toko 🏪' : 'Saldo Dompet 👤'}
+                            </span>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                ${statusBadge}
+                                <span style="font-size: 0.75rem; background-color: var(--retro-light-gray); padding: 2px 8px; border-radius: 4px; font-family: var(--font-number); font-weight: bold;">
+                                    WD ID: ${w.id}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.8rem; line-height: 1.4; margin-bottom: 8px;">
+                            <p><strong>Nama User:</strong> ${userDisplayName}</p>
+                            <p><strong>Nominal Penarikan:</strong> ${amountDisplayHTML}</p>
+                            <p><strong>Rekening Bank:</strong> ${w.bank_name} - ${w.account_number} a/n ${w.account_name}</p>
+                            <p><strong>Tanggal Pengajuan:</strong> ${dateStr}</p>
+                            ${w.deduction_reason ? `<p style="color: var(--mario-red); margin-top: 4px;"><strong>Keterangan Pelanggaran/Alasan:</strong> ${w.deduction_reason}</p>` : ''}
+                            ${w.rejection_reason ? `<p style="color: var(--mario-red); margin-top: 4px;"><strong>Alasan Penolakan:</strong> ${w.rejection_reason}</p>` : ''}
+                            ${w.deduction_destination ? `<p style="margin-top: 4px;"><strong>Alokasi Sisa Saldo:</strong> ${w.deduction_destination === 'platform' ? 'RetroHub (Kas Platform)' : 'Refund ke Pembeli'}</p>` : ''}
+                            ${linkedDetailsHTML}
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            ${actionsHTML}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.handleUpdateWDStatus = function(wdId, newStatus) {
+            db.updateWithdrawalStatus(wdId, newStatus);
+            showToast("Withdraw Status updated", `Status withdraw ${wdId} berhasil diubah menjadi ${newStatus}.`, "success");
+            renderWithdrawQueue();
+            if (typeof renderSellersList === 'function') {
+                renderSellersList();
+            }
+        };
+
+        window.openRejectWithdrawModal = function(wdId) {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-box" style="max-width: 450px;">
+                    <div class="modal-title" style="color: var(--mario-red);">Tolak Pengajuan Withdraw ❌</div>
+                    <div class="modal-message">
+                        <p style="margin-bottom: 12px; font-size: 0.85rem;">Harap berikan alasan penolakan penarikan dana ini. Penjual/user akan menerima notifikasi ini.</p>
+                        <textarea id="reject-reason-input" class="search-input" placeholder="Masukkan alasan penolakan (misal: Nomor rekening tidak valid / ada aktivitas mencurigakan)..." style="width: 100%; height: 100px; box-sizing: border-box; padding: 8px; font-family: inherit; font-size: 0.8rem; margin-bottom: 12px; resize: vertical; border: 2.5px solid var(--retro-dark); border-radius: 6px; box-shadow: 2px 2px 0px var(--retro-dark);"></textarea>
+                        
+                        <div style="margin-bottom: 12px; text-align: left;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.8rem;">Poin Penalti Pelanggaran (0 - 6):</label>
+                            <select id="reject-penalty-select" class="shipping-select" style="width: 100%; box-shadow: 2px 2px 0px var(--retro-dark); padding: 6px; box-sizing: border-box; font-size: 0.8rem; font-family: inherit;">
+                                <option value="0">0 Poin (Tidak ada penalti)</option>
+                                <option value="1">1 Poin (Peringatan Ringan)</option>
+                                <option value="2">2 Poin (Peringatan Sedang)</option>
+                                <option value="3">3 Poin (Pelanggaran Cukup Berat)</option>
+                                <option value="4">4 Poin (Pelanggaran Berat)</option>
+                                <option value="5">5 Poin (Sangat Berat)</option>
+                                <option value="6">6 Poin (Bekukan Akun Seller 🚫)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-buttons" style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn-retro btn-red" id="modal-reject-confirm-btn" style="font-size: 0.8rem;">❌ Tolak Pengajuan</button>
+                        <button class="btn-retro btn-blue" id="modal-reject-cancel-btn" style="font-size: 0.8rem;">BATAL</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            document.getElementById('modal-reject-confirm-btn').addEventListener('click', () => {
+                const reason = document.getElementById('reject-reason-input').value.trim();
+                const penalty = parseInt(document.getElementById('reject-penalty-select').value) || 0;
+                if (!reason) {
+                    showToast("Alasan Wajib Diisi ⚠️", "Mohon masukkan alasan penolakan.", "error");
+                    return;
+                }
+                db.updateWithdrawalStatus(wdId, 'rejected', null, reason, 'platform', '', penalty);
+                showToast("Withdraw Ditolak ❌", `Status withdraw ${wdId} diubah menjadi DITOLAK${penalty > 0 ? ` (+${penalty} Poin Penalti)` : ''}.`, "success");
+                overlay.remove();
+                renderWithdrawQueue();
+            });
+
+            document.getElementById('modal-reject-cancel-btn').addEventListener('click', () => {
+                overlay.remove();
+            });
+        };
+
+        window.openPartialWithdrawModal = function(wdId) {
+            const withdrawals = db.getWithdrawals();
+            const wd = withdrawals.find(w => w.id === wdId);
+            if (!wd) return;
+
+            const amount = Number(wd.amount);
+
+            // Cari unique buyers dari linked orders
+            let buyersOptionsHTML = '';
+            if (wd.type === 'seller_balance' && wd.order_ids && wd.order_ids.length > 0) {
+                const uniqueBuyers = {};
+                wd.order_ids.forEach(oid => {
+                    const ord = db.getOrderById(oid);
+                    if (ord && ord.buyer_id) {
+                        const buyerProfile = db.getProfileById(ord.buyer_id);
+                        if (buyerProfile) {
+                            uniqueBuyers[ord.buyer_id] = {
+                                username: buyerProfile.store_name || buyerProfile.username || 'User',
+                                orderId: oid
+                            };
+                        }
+                    }
+                });
+
+                Object.keys(uniqueBuyers).forEach(buyerId => {
+                    buyersOptionsHTML += `<option value="${buyerId}">Refund ke Pembeli: @${uniqueBuyers[buyerId].username} (Order: ${uniqueBuyers[buyerId].orderId})</option>`;
+                });
+            } else if (wd.type === 'buyer_wallet') {
+                buyersOptionsHTML = `<option value="${wd.user_id}">Kembali ke Pembeli (Refund Dompet)</option>`;
+            }
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-box" style="max-width: 500px;">
+                    <div class="modal-title" style="color: var(--mario-yellow);">Setujui Sebagian & Potong Saldo 💸</div>
+                    <div class="modal-message" style="font-size: 0.8rem; text-align: left; line-height: 1.4;">
+                        <p style="margin-bottom: 8px;"><strong>ID WD:</strong> ${wd.id}</p>
+                        <p style="margin-bottom: 12px;"><strong>Total Pengajuan:</strong> Rp${amount.toLocaleString('id-ID')}</p>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Jumlah yang Dicairkan ke User (Rp):</label>
+                            <input type="number" id="partial-approved-amount" class="search-input" value="${amount - 50000}" max="${amount - 1}" min="1" style="width: 100%; border: 2.5px solid var(--retro-dark); border-radius: 6px; box-shadow: 2px 2px 0px var(--retro-dark); padding: 6px; box-sizing: border-box; font-family: var(--font-number); font-weight: bold;">
+                        </div>
+
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Jumlah Potongan Penalti (Rp):</label>
+                            <input type="text" id="partial-deduction-amount" class="search-input" value="50000" disabled style="width: 100%; border: 2.5px solid var(--retro-dark); border-radius: 6px; box-shadow: 2px 2px 0px var(--retro-light-gray); padding: 6px; box-sizing: border-box; font-family: var(--font-number); font-weight: bold; background-color: #E2E8F0; color: #475569;">
+                        </div>
+
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Keterangan Pelanggaran / Alasan Potongan:</label>
+                            <textarea id="partial-reason-input" class="search-input" placeholder="Masukkan alasan pemotongan dana (misal: Penalti manipulasi ongkir)..." style="width: 100%; height: 60px; box-sizing: border-box; padding: 6px; font-family: inherit; font-size: 0.78rem; resize: vertical; border: 2.5px solid var(--retro-dark); border-radius: 6px; box-shadow: 2px 2px 0px var(--retro-dark);"></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px;">Alokasi Sisa Saldo Potongan:</label>
+                            <select id="partial-destination-select" class="shipping-select" style="width: 100%; box-shadow: 2px 2px 0px var(--retro-dark); padding: 6px; box-sizing: border-box; margin: 0; font-size: 0.78rem;">
+                                <option value="platform">RetroHub (Platform/Kas)</option>
+                                ${buyersOptionsHTML}
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 4px; font-size: 0.78rem;">Poin Penalti Pelanggaran (0 - 6):</label>
+                            <select id="partial-penalty-select" class="shipping-select" style="width: 100%; box-shadow: 2px 2px 0px var(--retro-dark); padding: 6px; box-sizing: border-box; margin: 0; font-size: 0.78rem; font-family: inherit;">
+                                <option value="0">0 Poin (Tidak ada penalti)</option>
+                                <option value="1">1 Poin</option>
+                                <option value="2">2 Poin</option>
+                                <option value="3">3 Poin</option>
+                                <option value="4">4 Poin</option>
+                                <option value="5">5 Poin</option>
+                                <option value="6">6 Poin (Bekukan Akun 🚫)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-buttons" style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button class="btn-retro btn-green" id="modal-partial-confirm-btn" style="font-size: 0.8rem;">💸 Setujui Sebagian</button>
+                        <button class="btn-retro btn-red" id="modal-partial-cancel-btn" style="font-size: 0.8rem;">BATAL</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            const approvedInput = document.getElementById('partial-approved-amount');
+            const deductionInput = document.getElementById('partial-deduction-amount');
+
+            approvedInput.addEventListener('input', () => {
+                const appVal = Number(approvedInput.value) || 0;
+                const dedVal = amount - appVal;
+                deductionInput.value = dedVal >= 0 ? dedVal : 0;
+            });
+
+            document.getElementById('modal-partial-confirm-btn').addEventListener('click', () => {
+                const approvedAmt = Number(approvedInput.value);
+                const reason = document.getElementById('partial-reason-input').value.trim();
+                const dest = document.getElementById('partial-destination-select').value;
+                const penalty = parseInt(document.getElementById('partial-penalty-select').value) || 0;
+
+                if (isNaN(approvedAmt) || approvedAmt <= 0 || approvedAmt >= amount) {
+                    showToast("Nominal Tidak Valid ⚠️", `Jumlah disetujui harus di antara Rp1 s/d Rp${(amount - 1).toLocaleString('id-ID')}.`, "error");
+                    return;
+                }
+                if (!reason) {
+                    showToast("Alasan Wajib Diisi ⚠️", "Mohon masukkan alasan pemotongan saldo.", "error");
+                    return;
+                }
+
+                let targetBuyerId = '';
+                let finalDest = dest;
+                if (dest !== 'platform') {
+                    targetBuyerId = dest;
+                    finalDest = 'buyer';
+                }
+
+                db.updateWithdrawalStatus(wdId, 'success', approvedAmt, reason, finalDest, targetBuyerId, penalty);
+                showToast("Withdraw Diproses Sebagian 💸", `Status withdraw ${wdId} disetujui sebagian sebesar Rp${approvedAmt.toLocaleString('id-ID')}${penalty > 0 ? ` (+${penalty} Poin Penalti)` : ''}.`, "success");
+                overlay.remove();
+                renderWithdrawQueue();
+            });
+
+            document.getElementById('modal-partial-cancel-btn').addEventListener('click', () => {
+                overlay.remove();
+            });
+        };
+
+        window.renderAPILogs = function() {
+            const tbody = document.getElementById('api-logs-tbody');
+            if (!tbody) return;
+
+            const logs = db.getAPILogs();
+            const searchInput = document.getElementById('api-log-search');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const statusFilter = document.getElementById('api-log-status-filter')?.value || 'all';
+
+            let filtered = logs;
+
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(l => l.status === statusFilter);
+            }
+
+            if (searchQuery) {
+                filtered = filtered.filter(l => l.order_id && l.order_id.toLowerCase().includes(searchQuery));
+            }
+
+            filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748B; padding: 20px;">Tidak ada log aktivitas API.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(l => {
+                let statusTag = '';
+                if (l.status === 'success') statusTag = '<span class="tag success" style="background-color: var(--mario-green); color: white;">Success ✅</span>';
+                else if (l.status === 'unpaid') statusTag = '<span class="tag loose">Unpaid ⏳</span>';
+                else if (l.status === 'failed') statusTag = '<span class="tag dispute" style="background-color: var(--mario-red); color: white;">Failed ❌</span>';
+                else if (l.status === 'error') statusTag = '<span class="tag in_progress" style="background-color: var(--mario-yellow); color: var(--retro-dark);">Error ⚠️</span>';
+
+                return `
+                    <tr style="border-bottom: 1px solid var(--retro-light-gray);">
+                        <td style="padding: 8px; font-family: var(--font-number); font-weight: bold;">${l.id}</td>
+                        <td style="padding: 8px; font-weight: bold; color: var(--mario-blue);">${l.order_id}</td>
+                        <td style="padding: 8px; font-family: var(--font-number);">Rp${l.amount.toLocaleString('id-ID')}</td>
+                        <td style="padding: 8px;">${statusTag}</td>
+                        <td style="padding: 8px;">${new Date(l.timestamp).toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        window.viewSellerKatalog = function(sellerId) {
+            const seller = db.getProfileById(sellerId);
+            if (!seller) return;
+
+            const modalHTML = `
+                <div style="max-height: 400px; overflow-y: auto; text-align: left; display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Search Bar Katalog di Modal -->
+                    <div class="search-section" style="margin-bottom: 4px;">
+                        <div class="search-bar-wrapper" style="box-shadow: 2px 2px 0px var(--retro-dark);">
+                            <input type="text" id="modal-catalog-search-input" class="search-input" placeholder="Cari nama produk, harga, tipe..." oninput="filterCatalogModalProducts('${sellerId}')" style="padding: 8px 12px; font-size: 0.8rem;">
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--retro-dark); font-family: var(--font-retro); font-size: 0.75rem; text-align: left;">
+                                    <th style="padding: 6px 4px;">Foto</th>
+                                    <th style="padding: 6px 4px;">Nama Produk</th>
+                                    <th style="padding: 6px 4px;">Harga</th>
+                                    <th style="padding: 6px 4px;">Tipe</th>
+                                    <th style="padding: 6px 4px;">Stok</th>
+                                    <th style="padding: 6px 4px;">Status</th>
+                                    <th style="padding: 6px 4px;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-catalog-tbody">
+                                <!-- Diisi dinamis -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            showAlert(`Katalog Produk @${seller.store_name} 🎮`, modalHTML);
+            filterCatalogModalProducts(sellerId);
+        };
+
+        window.filterCatalogModalProducts = function(sellerId) {
+            const searchInput = document.getElementById('modal-catalog-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            const tbody = document.getElementById('modal-catalog-tbody');
+            if (!tbody) return;
+
+            const products = db.getProducts().filter(p => p.seller_id === sellerId);
+            let filtered = products;
+
+            if (searchQuery) {
+                filtered = products.filter(p => 
+                    (p.title && p.title.toLowerCase().includes(searchQuery)) ||
+                    (p.price && p.price.toString().includes(searchQuery)) ||
+                    (p.starting_bid && p.starting_bid.toString().includes(searchQuery)) ||
+                    (p.transaction_type && p.transaction_type.toLowerCase().includes(searchQuery)) ||
+                    (p.status && p.status.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 12px; font-size: 0.8rem;">Tidak ada produk yang cocok.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => `
+                <tr style="border-bottom: 1px solid var(--retro-light-gray);">
+                    <td style="padding: 8px 4px;"><img src="${p.image_url}" style="width: 40px; height: 40px; object-fit: cover; border: 1.5px solid var(--retro-dark); border-radius: 4px;"></td>
+                    <td style="padding: 8px 4px; font-weight: bold; font-size: 0.8rem;"><a href="product.html?id=${p.id}" target="_blank" style="color: var(--mario-blue); text-decoration: underline;">${p.title}</a></td>
+                    <td style="padding: 8px 4px; font-size: 0.8rem; font-family: var(--font-number);">Rp${p.price ? p.price.toLocaleString('id-ID') : (p.starting_bid || 0).toLocaleString('id-ID')}</td>
+                    <td style="padding: 8px 4px;"><span class="tag ${p.transaction_type === 'lelang' ? 'loose' : 'bib'}" style="font-size: 0.65rem;">${p.transaction_type.toUpperCase()}</span></td>
+                    <td style="padding: 8px 4px; font-size: 0.8rem; font-family: var(--font-number);">${p.transaction_type === 'lelang' ? '1' : (p.stock !== undefined && p.stock !== null ? p.stock : 1)}</td>
+                    <td style="padding: 8px 4px;"><span class="tag" style="font-size: 0.65rem; background-color: ${p.status === 'active' ? 'var(--mario-green)' : (p.status === 'suspended' ? 'var(--mario-red)' : 'var(--retro-light-gray)')}; color: white;">${p.status.toUpperCase()}</span></td>
+                    <td style="padding: 8px 4px;">
+                        ${p.status === 'active' ? `
+                            <button class="btn-retro btn-red" onclick="handleTakedownFromKatalogModal('${p.id}', '${sellerId}')" style="font-size: 0.6rem; padding: 4px 8px;">Take Down ❌</button>
+                        ` : `
+                            <button class="btn-retro btn-green" onclick="handleRestoreFromKatalogModal('${p.id}', '${sellerId}')" style="font-size: 0.6rem; padding: 4px 8px;">Aktifkan 🟢</button>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.handleTakedownFromKatalogModal = function(productId, sellerId) {
+            db.updateProductStatus(productId, 'suspended');
+            showToast("Produk Diturunkan", "Status produk berhasil diubah menjadi Suspended.", "warning");
+            filterCatalogModalProducts(sellerId);
+            renderSellersList();
+        };
+
+        window.handleRestoreFromKatalogModal = function(productId, sellerId) {
+            db.updateProductStatus(productId, 'active');
+            showToast("Produk Diaktifkan", "Status produk berhasil diubah menjadi Aktif.", "success");
+            filterCatalogModalProducts(sellerId);
+            renderSellersList();
+        };
+
+        window.handleWarningSeller = function(sellerId) {
+            const profiles = db.getProfiles();
+            const index = profiles.findIndex(p => p.id === sellerId);
+            if (index !== -1) {
+                profiles[index].warning_count = (profiles[index].warning_count || 0) + 1;
+                if (profiles[index].warning_count >= 3) {
+                    profiles[index].is_banned = true;
+                    showToast("Seller Terblokir 🚫", `Peringatan mencapai 3/3. Toko @${profiles[index].store_name} otomatis dibanned!`, "error");
+                } else {
+                    showToast("Peringatan Dikirim ⚠️", `Toko @${profiles[index].store_name} diberi peringatan (${profiles[index].warning_count}/3).`, "warning");
+                }
+                localStorage.setItem('retrohub_profiles', JSON.stringify(profiles));
+                renderSellersList();
+            }
+        };
+
+        window.handleToggleBanSeller = function(sellerId) {
+            const profiles = db.getProfiles();
+            const index = profiles.findIndex(p => p.id === sellerId);
+            if (index !== -1) {
+                const currentStatus = profiles[index].is_banned || false;
+                profiles[index].is_banned = !currentStatus;
+                if (profiles[index].is_banned) {
+                    profiles[index].warning_count = 3;
+                    showToast("Seller Diblokir 🚫", `Toko @${profiles[index].store_name} berhasil dinonaktifkan.`, "error");
+                } else {
+                    profiles[index].warning_count = 0;
+                    showToast("Blokir Dibuka 🟢", `Toko @${profiles[index].store_name} aktif kembali.`, "success");
+                }
+                localStorage.setItem('retrohub_profiles', JSON.stringify(profiles));
+                renderSellersList();
+            }
+        };
+
+        // ==========================================================
+        // TAB 7: PANTAU TRANSAKSI
+        // ==========================================================
+        let currentTxFilter = 'all';
+
+        window.filterTransactions = function(filterType) {
+            currentTxFilter = filterType;
+            ['all', 'waiting_payment', 'shipping', 'problem', 'cancelled', 'completed'].forEach(type => {
+                const btn = document.getElementById(`btn-tx-${type}`);
+                if (btn) {
+                    if (type === filterType) {
+                        btn.classList.add('active');
+                        btn.style.backgroundColor = 'var(--mario-yellow)';
+                    } else {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = '#FFFFFF';
+                    }
+                }
+            });
+            renderTransactionsMonitor();
+        };
+
+        window.toggleOrderCollapse = function(orderId) {
+            const detailDiv = document.getElementById(`order-detail-${orderId}`);
+            const arrowSpan = document.getElementById(`order-arrow-${orderId}`);
+            if (detailDiv) {
+                if (detailDiv.style.display === 'none') {
+                    detailDiv.style.display = 'block';
+                    if (arrowSpan) arrowSpan.innerHTML = '▲';
+                } else {
+                    detailDiv.style.display = 'none';
+                    if (arrowSpan) arrowSpan.innerHTML = '▼';
+                }
+            }
+        };
+
+        window.renderTransactionsMonitor = async function() {
+            const container = document.getElementById('transactions-monitor-container');
+            // Fetch langsung dari Supabase untuk data selalu fresh
+            let orders = [];
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    // Ambil orders + profiles sekaligus untuk enrich nama buyer/seller
+                    const [{ data, error }, { data: allProfiles }] = await Promise.all([
+                        supabaseClient.from('orders').select('*').order('created_at', { ascending: false }),
+                        supabaseClient.from('profiles').select('id, store_name, full_name')
+                    ]);
+                    if (!error && data) {
+                        // Enrich dengan nama yang mudah dibaca
+                        orders = data.map(o => {
+                            const buyer  = allProfiles ? allProfiles.find(p => p.id === o.buyer_id)  : null;
+                            const seller = allProfiles ? allProfiles.find(p => p.id === o.seller_id) : null;
+                            return {
+                                ...o,
+                                buyer_name:    o.buyer_name  || (buyer  ? '@' + (buyer.store_name  || buyer.full_name)  : o.buyer_id),
+                                seller_name:   o.seller_name || (seller ? '@' + (seller.store_name || seller.full_name) : o.seller_id),
+                                courier:       o.shipping_courier,
+                                price:         Number(o.price_deal || 0),
+                                price_deal:    Number(o.price_deal || 0),
+                                shipping_cost: Number(o.shipping_cost || 0),
+                                admin_fee:     Number(o.admin_fee || 5000),
+                                total_payment: Number(o.total_payment || 0),
+                            };
+                        });
+                        localStorage.setItem('retrohub_orders', JSON.stringify(orders));
+                    } else {
+                        orders = db.getOrders();
+                    }
+                } catch(e) {
+                    console.warn('[Admin] renderTransactionsMonitor fetch failed:', e);
+                    orders = db.getOrders();
+                }
+            } else {
+                orders = db.getOrders();
+            }
+
+            // Read search input
+            const searchInput = document.getElementById('tx-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+            let filtered = orders;
+            if (currentTxFilter === 'waiting_payment') {
+                filtered = orders.filter(o => ['waiting_payment', 'pending_payment'].includes(o.status));
+            } else if (currentTxFilter === 'shipping') {
+                filtered = orders.filter(o => ['to_ship', 'paid', 'shipping', 'delivered'].includes(o.status));
+            } else if (currentTxFilter === 'problem') {
+                filtered = orders.filter(o => o.status === 'disputed');
+            } else if (currentTxFilter === 'cancelled') {
+                filtered = orders.filter(o => ['cancelled', 'expired', 'refunded'].includes(o.status));
+            } else if (currentTxFilter === 'completed') {
+                filtered = orders.filter(o => o.status === 'completed');
+            }
+
+            // Saring berdasarkan search query
+            if (searchQuery) {
+                filtered = filtered.filter(o => 
+                    (o.id && o.id.toLowerCase().includes(searchQuery)) ||
+                    (o.buyer_name && o.buyer_name.toLowerCase().includes(searchQuery)) ||
+                    (o.seller_name && o.seller_name.toLowerCase().includes(searchQuery)) ||
+                    (o.product_title && o.product_title.toLowerCase().includes(searchQuery)) ||
+                    (o.tracking_number && o.tracking_number.toLowerCase().includes(searchQuery))
+                );
+            }
+
+            filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #64748B; padding: 20px;">Tidak ada transaksi dengan status ini. 📭</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(order => {
+                let statusBadge = '';
+                let badgeColor = '';
+                
+                switch(order.status) {
+                    case 'waiting_payment':
+                    case 'pending_payment':
+                        statusBadge = 'Menunggu Pembayaran';
+                        badgeColor = 'var(--mario-yellow)';
+                        break;
+                    case 'to_ship':
+                    case 'paid':
+                        statusBadge = 'Sudah Bayar - Siap Kirim';
+                        badgeColor = 'var(--mario-blue)';
+                        break;
+                    case 'shipping':
+                        statusBadge = 'Dalam Pengiriman';
+                        badgeColor = '#A855F7';
+                        break;
+                    case 'completed':
+                        statusBadge = 'Selesai';
+                        badgeColor = 'var(--mario-green)';
+                        break;
+                    case 'disputed':
+                        statusBadge = 'Disengketakan ⚠️';
+                        badgeColor = 'var(--mario-red)';
+                        break;
+                    case 'refunded':
+                        statusBadge = 'Refund Selesai 💸';
+                        badgeColor = '#64748B';
+                        break;
+                    case 'expired':
+                        statusBadge = 'Expired / Batal ⏰';
+                        badgeColor = '#94A3B8';
+                        break;
+                }
+
+                const dateStr = new Date(order.created_at).toLocaleDateString('id-ID', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                const isWaitingPayment = ['waiting_payment', 'pending_payment'].includes(order.status);
+
+                let apiStatusLabel = 'BELUM TERBAYAR ⏳';
+                let apiStatusColor = '#FEF08A';
+                let apiStatusTextColor = '#854D0E';
+                
+                const apiStatus = order.payment_api_status || (isWaitingPayment ? 'unpaid' : 'success');
+                switch(apiStatus) {
+                    case 'unpaid':
+                        apiStatusLabel = 'BELUM TERBAYAR ⏳';
+                        apiStatusColor = '#FEF08A';
+                        apiStatusTextColor = '#854D0E';
+                        break;
+                    case 'success':
+                        apiStatusLabel = 'BERHASIL ✅';
+                        apiStatusColor = '#DCFCE7';
+                        apiStatusTextColor = '#166534';
+                        break;
+                    case 'failed':
+                        apiStatusLabel = 'GAGAL / EXPIRED ❌';
+                        apiStatusColor = '#FEE2E2';
+                        apiStatusTextColor = '#991B1B';
+                        break;
+                    case 'error':
+                        apiStatusLabel = 'ERROR SISTEM ⚠️';
+                        apiStatusColor = '#F3E8FF';
+                        apiStatusTextColor = '#6B21A8';
+                        break;
+                }
+
+                return `
+                    <div class="verify-card" style="background-color: #FFFFFF; padding: 10px 14px; cursor: pointer; border: 2.5px solid var(--retro-dark); border-radius: 8px; box-shadow: 4px 4px 0px var(--retro-dark); margin-bottom: 12px;" onclick="toggleOrderCollapse('${order.id}')">
+                        <div class="verify-header" style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <span style="font-family: var(--font-retro); font-size: 0.8rem; color: var(--retro-dark); font-weight: bold;">
+                                    [${order.id.slice(-6)}] ${order.product_title}
+                                </span>
+                                <span style="font-size: 0.72rem; background-color: ${badgeColor}; color: ${isWaitingPayment ? 'var(--retro-dark)' : 'white'}; padding: 2px 6px; border-radius: 4px; border: 1.5px solid var(--retro-dark); font-weight: bold;">
+                                    ${statusBadge}
+                                </span>
+                                <span style="font-family: var(--font-number); font-size: 0.78rem; font-weight: bold; color: var(--mario-blue);">
+                                    Rp${(order.price + (order.shipping_cost || 0)).toLocaleString('id-ID')}
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 0.7rem; color: #64748B;">${new Date(order.created_at).toLocaleDateString('id-ID')}</span>
+                                <span id="order-arrow-${order.id}" style="font-size: 0.8rem; color: var(--retro-dark); font-weight: bold;">▼</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Collapsible Detail Section -->
+                        <div id="order-detail-${order.id}" style="display: none; margin-top: 12px; border-top: 1.5px dashed var(--retro-light-gray); padding-top: 12px;" onclick="event.stopPropagation()">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 0.8rem; line-height: 1.4; margin-bottom: 12px;">
+                                <div>
+                                    <p><strong>Order ID:</strong> <span style="font-family: var(--font-number);">${order.id}</span></p>
+                                    <p><strong>Produk:</strong> ${order.product_title}</p>
+                                    <p><strong>Harga Barang:</strong> <span style="font-family: var(--font-number);">Rp${order.price.toLocaleString('id-ID')}</span></p>
+                                    <p><strong>Ongkos Kirim (${order.courier ? order.courier.toUpperCase() : 'Biteship'}):</strong> <span style="font-family: var(--font-number);">Rp${(order.shipping_cost || 0).toLocaleString('id-ID')}</span></p>
+                                    <p><strong>Total Dana:</strong> <span style="font-family: var(--font-number); font-weight: bold; color: var(--mario-blue);">Rp${(order.price + (order.shipping_cost || 0)).toLocaleString('id-ID')}</span></p>
+                                </div>
+                                <div style="border-left: 1.5px dashed var(--retro-light-gray); padding-left: 16px;">
+                                    <p><strong>Tanggal Transaksi:</strong> ${dateStr}</p>
+                                    <p><strong>Penjual (Seller):</strong> ${order.seller_name}</p>
+                                    <p><strong>Pembeli (Buyer):</strong> ${order.buyer_name}</p>
+                                    <p><strong>No. Resi (Tracking):</strong> ${order.tracking_number ? `<span style="font-family: var(--font-number); background: #F1F5F9; padding: 2px 6px; border: 1px solid #CBD5E1; border-radius: 4px; font-weight: bold;">${order.tracking_number}</span>` : '<span style="color: #94A3B8; font-style: italic;">Belum diinput seller</span>'}</p>
+                                    <p><strong>Status API Gateway:</strong> 
+                                        <span style="font-family: var(--font-retro); font-size: 0.75rem; padding: 2px 6px; border: 1.5px solid var(--retro-dark); border-radius: 4px; background-color: ${apiStatusColor}; color: ${apiStatusTextColor}; font-weight: bold; box-shadow: 1px 1px 0px var(--retro-dark);">
+                                            ${apiStatusLabel}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                                ${order.status === 'disputed' ? `
+                                    <button class="btn-retro btn-red" onclick="switchTab('sengketa-rekber')" style="font-size: 0.75rem; padding: 6px 12px;">⚖️ Buka Dispute Center</button>
+                                ` : ''}
+                                ${isWaitingPayment ? `
+                                    <button class="btn-retro btn-yellow" onclick="handleCheckPaymentAPI('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;">🔄 Cek Status API</button>
+                                    <button class="btn-retro btn-green" onclick="handleAdminConfirmPayment('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">👍 Konfirmasi Bayar</button>
+                                ` : ''}
+                                ${order.status === 'shipping' ? `
+                                    <button class="btn-retro btn-green" onclick="handleAdminCompleteOrder('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">✅ Selesaikan Pesanan</button>
+                                ` : ''}
+                                ${['waiting_payment', 'pending_payment', 'to_ship', 'paid', 'shipping'].includes(order.status) ? `
+                                    <button class="btn-retro btn-red" onclick="handleAdminCancelOrder('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">❌ Batalkan & Refund</button>
+                                ` : ''}
+                                <button class="btn-retro btn-white" onclick="viewOrderTimeline('${order.id}')" style="font-size: 0.75rem; padding: 6px 12px;">🕒 Lacak Timeline</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.viewOrderTimeline = function(orderId) {
+            const order = db.getOrderById(orderId);
+            if (!order) return;
+
+            const steps = [];
+            steps.push({ time: order.created_at, title: "Pesanan Dibuat", desc: `Pembeli (@${order.buyer_name}) Checkout produk.` });
+
+            if (order.status !== 'pending_payment') {
+                steps.push({ time: order.created_at, title: "Pembayaran Diterima (Rekber)", desc: "Dana berhasil diamankan oleh Rekber RetroHub." });
+            }
+
+            if (order.tracking_number) {
+                steps.push({ time: order.created_at, title: "Paket Dikirim oleh Seller", desc: `Resi terinput: ${order.tracking_number} via ${order.courier ? order.courier.toUpperCase() : 'Biteship'}.` });
+            }
+
+            if (order.delivered_at) {
+                steps.push({ time: order.delivered_at, title: "Paket Tiba di Tujuan", desc: "Kurir Biteship mengonfirmasi barang telah sampai di alamat pembeli." });
+            }
+
+            if (order.status === 'completed') {
+                steps.push({ time: order.completed_at || order.delivered_at, title: "Transaksi Selesai", desc: "Pembeli menyetujui barang / batas waktu berakhir. Dana diteruskan ke Dompet Seller." });
+            }
+
+            if (order.status === 'disputed') {
+                steps.push({ time: order.created_at, title: "Disengketeakan (Dispute)", desc: "Pembeli mengajukan komplain barang tidak sesuai. Menunggu investigasi bukti video." });
+            }
+
+            if (order.status === 'refunded') {
+                steps.push({ time: order.created_at, title: "Transaksi Dibatalkan (Refund)", desc: "Admin membatalkan pesanan. Dana dikembalikan penuh ke Pembeli." });
+            }
+
+            const stepsHTML = steps.map((step, idx) => {
+                const stepDate = new Date(step.time).toLocaleDateString('id-ID', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                const isLast = idx === steps.length - 1;
+
+                return `
+                    <div style="display: flex; gap: 12px; margin-bottom: ${isLast ? '0' : '16px'}; position: relative;">
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div style="width: 14px; height: 14px; border-radius: 50%; background-color: ${isLast ? 'var(--mario-green)' : 'var(--mario-blue)'}; border: 2.5px solid var(--retro-dark); z-index: 2;"></div>
+                            ${!isLast ? `<div style="width: 3px; background-color: var(--retro-dark); flex-grow: 1; margin-top: 4px; margin-bottom: -16px; z-index: 1;"></div>` : ''}
+                        </div>
+                        <div style="font-size: 0.75rem; text-align: left; margin-top: -2px;">
+                            <div style="font-weight: bold; color: var(--retro-dark); font-family: var(--font-retro);">${step.title} <span style="font-size: 0.65rem; color: #64748B; font-family: var(--font-body); font-weight: normal; margin-left: 8px;">(${stepDate})</span></div>
+                            <div style="color: #475569; margin-top: 2px;">${step.desc}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            showAlert(`Timeline Transaksi #${order.id} 🕒`, `<div style="padding: 10px 0;">${stepsHTML}</div>`);
+        };
+
+        window.handleAdminCancelOrder = function(orderId) {
+            showConfirm("Batalkan Transaksi? ⚠️", "Apakah Anda yakin ingin membatalkan transaksi ini dan mengembalikan dana sepenuhnya ke Pembeli?", () => {
+                // Gunakan db.cancelOrder agar stok/refund wallet/email/broadcast semua berjalan
+                const result = db.cancelOrder(orderId, 'admin', 'Dibatalkan oleh Admin RetroHub');
+                if (result) {
+                    showToast("Transaksi Dibatalkan ✅", "Pesanan dibatalkan. Dana dikembalikan ke dompet pembeli.", "warning");
+                } else {
+                    // Fallback: order mungkin sudah dalam status lanjut (shipping/completed/disputed)
+                    // Gunakan updateOrderStatus untuk force refund
+                    const order = db.getOrderById(orderId);
+                    if (order) {
+                        const amount = Number(order.price_deal || order.price || 0) + Number(order.shipping_cost || 0);
+                        db.refundToBuyerWallet(order.buyer_id, amount);
+                        db.updateOrderStatus(orderId, 'refunded');
+                        showToast("Transaksi Di-refund ✅", "Dana dikembalikan ke dompet pembeli.", "warning");
+                    }
+                }
+                renderTransactionsMonitor();
+            });
+        };
+
+        window.handleAdminConfirmPayment = function(orderId) {
+            showConfirm("Konfirmasi Pembayaran? 💰", "Apakah Anda yakin dana pembayaran untuk pesanan ini telah diterima Rekber RetroHub?", () => {
+                db.updateOrderStatus(orderId, 'to_ship');
+                showToast("Pembayaran Diterima ✅", "Status diubah menjadi Siap Kirim. Seller akan diberitahu untuk memproses barang.", "success");
+                
+                // Kirim chat privat otomatis ke buyer dan seller
+                const order = db.getOrderById(orderId);
+                if (order) {
+                    db.sendPrivateChat('admin-demo', order.buyer_id, `Pembayaran rekber Anda untuk pesanan (Order ID: ${orderId}) telah diverifikasi oleh admin RetroHub! Status pesanan kini: Perlu Dikirim. Penjual sedang menyiapkan barang Anda! 📦`);
+                    db.sendPrivateChat('admin-demo', order.seller_id, `Dana pembayaran dari pembeli untuk pesanan (Order ID: ${orderId}) telah diverifikasi rekber! Silakan segera packing barang dan input nomor resi pengiriman di dashboard seller Anda. 📦`);
+                }
+                
+                renderTransactionsMonitor();
+            });
+        };
+
+        window.handleCheckPaymentAPI = function(orderId) {
+            const order = db.getOrderById(orderId);
+            if (!order) return;
+            
+            const modalHTML = `
+                <div style="max-height: 420px; overflow-y: auto; text-align: left; display: flex; flex-direction: column; gap: 14px; font-size: 0.85rem;">
+                    <p>Sistem mendeteksi transaksi ini terhubung ke <strong>RetroPay Payment Gateway API</strong>.</p>
+                    <div style="background: #F8FAFC; padding: 10px; border: 1.5px solid var(--retro-dark); border-radius: 6px; font-family: var(--font-body); font-size: 0.8rem; box-shadow: 2px 2px 0px var(--retro-dark);">
+                        <strong>Order ID:</strong> <span style="font-family: var(--font-number);">${orderId}</span><br>
+                        <strong>Total Tagihan:</strong> <span style="font-family: var(--font-number);">Rp ${(order.price + (order.shipping_cost || 0)).toLocaleString('id-ID')}</span><br>
+                        <strong>Status Terkini API:</strong> <span style="font-weight: bold; color: var(--mario-blue);">${(order.payment_api_status || 'unpaid').toUpperCase()}</span>
+                    </div>
+                    <div style="border-top: 1.5px dashed var(--retro-light-gray); padding-top: 12px;">
+                        <p style="font-weight: bold; margin-bottom: 8px; font-family: var(--font-retro); font-size: 0.8rem;">Uji Respon Balik API Gateway:</p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button class="btn-retro btn-white" onclick="simulateAPIResponse('${orderId}', 'unpaid')" style="font-size: 0.75rem; padding: 8px 12px; text-align: left; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%;">
+                                ⏳ <span><strong>Belum Terbayar (Pending):</strong> User belum melakukan transfer.</span>
+                            </button>
+                            <button class="btn-retro btn-green" onclick="simulateAPIResponse('${orderId}', 'success')" style="font-size: 0.75rem; padding: 8px 12px; text-align: left; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%;">
+                                ✅ <span><strong>Berhasil (Success):</strong> Pembayaran terverifikasi otomatis. Status pesanan akan berubah menjadi Siap Kirim!</span>
+                            </button>
+                            <button class="btn-retro btn-red" onclick="simulateAPIResponse('${orderId}', 'failed')" style="font-size: 0.75rem; padding: 8px 12px; text-align: left; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%;">
+                                ❌ <span><strong>Gagal / Expired:</strong> User tidak membayar hingga batas waktu habis.</span>
+                            </button>
+                            <button class="btn-retro btn-yellow" onclick="simulateAPIResponse('${orderId}', 'error')" style="font-size: 0.75rem; padding: 8px 12px; text-align: left; display: flex; align-items: center; gap: 8px; cursor: pointer; width: 100%;">
+                                ⚠️ <span><strong>Error Sistem:</strong> API Gateway timeout atau tidak memberikan respon balik yang valid.</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            showAlert("Hubungkan API Payment Gateway 🔌", modalHTML);
+        };
+
+        window.simulateAPIResponse = function(orderId, status) {
+            const activeOverlay = document.querySelector('.modal-overlay');
+            if (activeOverlay) activeOverlay.remove();
+
+            const orders = db.getOrders();
+            const index = orders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+                const order = orders[index];
+                orders[index].payment_api_status = status;
+                
+                const amount = Number(order.total_price || (order.price + order.shipping_cost) || 0);
+                db.addAPILog(orderId, amount, status);
+
+                if (status === 'success') {
+                    orders[index].status = 'to_ship';
+                    orders[index].paid_at = new Date().toISOString();
+                    showToast("API Pembayaran Sukses ✅", `Pembayaran Order #${orderId} berhasil diverifikasi otomatis oleh API!`, "success");
+                    
+                    db.sendPrivateChat('admin-demo', orders[index].buyer_id, `Pembayaran otomatis Anda untuk pesanan (Order ID: ${orderId}) telah diverifikasi oleh API! Status pesanan kini: Perlu Dikirim. Penjual sedang menyiapkan barang Anda! 📦`);
+                    db.sendPrivateChat('admin-demo', orders[index].seller_id, `Dana pembayaran otomatis dari pembeli untuk pesanan (Order ID: ${orderId}) telah diverifikasi API! Silakan segera packing barang dan input nomor resi pengiriman di dashboard seller Anda. 📦`);
+                } else if (status === 'failed') {
+                    orders[index].status = 'expired';
+                    orders[index].cancelled_at = new Date().toISOString();
+                    orders[index].cancelled_by = 'system';
+                    orders[index].cancel_reason = 'Pembayaran kedaluwarsa via API Gateway.';
+                    
+                    const products = db.getProducts();
+                    const pIdx = products.findIndex(p => p.id === orders[index].product_id);
+                    if (pIdx !== -1 && (products[pIdx].status === 'reserved' || products[pIdx].status === 'sold')) {
+                        products[pIdx].status = 'active';
+                        delete products[pIdx].reserved_until;
+                        delete products[pIdx].reserved_order_id;
+                        localStorage.setItem('retrohub_products', JSON.stringify(products));
+                    }
+                    
+                    showToast("API Pembayaran Expired ❌", `Order #${orderId} dibatalkan otomatis oleh sistem karena batas waktu habis.`, "error");
+                } else if (status === 'error') {
+                    showToast("API Error Gateway ⚠️", `Koneksi ke server gateway gagal. Silakan coba beberapa saat lagi atau lakukan Konfirmasi Manual.`, "warning");
+                } else {
+                    showToast("Status API: Pending ⏳", `Menunggu pembayaran dari user untuk Order #${orderId}.`, "info");
+                }
+                
+                localStorage.setItem('retrohub_orders', JSON.stringify(orders));
+                renderTransactionsMonitor();
+                if (typeof renderAPILogs === 'function') {
+                    renderAPILogs();
+                }
+            }
+        };
+
+        window.handleAdminCompleteOrder = function(orderId) {
+            showConfirm("Selesaikan Pesanan? 🏆", "Tindakan ini akan melepaskan dana pembayaran ke dompet Seller. Lanjutkan?", () => {
+                db.updateOrderStatus(orderId, 'completed');
+                showToast("Pesanan Selesai 🎉", "Transaksi dinyatakan selesai. Dana berhasil diteruskan ke saldo penjual.", "success");
+                
+                const order = db.getOrderById(orderId);
+                if (order) {
+                    db.sendPrivateChat('admin-demo', order.buyer_id, `Pesanan (Order ID: ${orderId}) telah selesai. Terima kasih telah berbelanja di RetroHub! 🎮`);
+                    db.sendPrivateChat('admin-demo', order.seller_id, `Selamat! Transaksi (Order ID: ${orderId}) telah diselesaikan. Saldo penjualan sebesar Rp ${(order.price + order.shipping_cost).toLocaleString('id-ID')} telah diteruskan ke Dompet Seller Anda. 💸`);
+                }
+                
+                renderTransactionsMonitor();
+            });
+        };
+
+        // Zoom KTP modal
+        function zoomImage(url) {
+            showAlert("Detail Berkas Verifikasi KTP 🔍", `
+                <div style="border: 2px solid var(--retro-dark); border-radius: 4px; overflow: hidden; height: 260px; background: #F1F5F9;">
+                    <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            `);
+        }
+
+        // Inisialisasi awal
+        checkAdminAccessLive();
+
+        // Restore tab state if saved
+        const savedAdminTab = localStorage.getItem('retrohub_admin_active_tab');
+        if (savedAdminTab) {
+            switchTab(savedAdminTab);
+        }
+
+        // ── REALTIME: auto-refresh tab aktif tanpa reload ───────────
+        // Realtime: saat ada order update (dari buyer/seller cancel, bayar, dll) → refresh panel admin
+        window.addEventListener('retrohub_order_updated', async (e) => {
+            // Sync ulang dari Supabase dulu supaya data terbaru
+            await syncAdminData();
+            refreshActiveTabData();
+        });
+        
+        // Realtime order channel khusus admin (jika Supabase aktif)
+        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+            supabaseClient.channel('admin-orders-live')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
+                    await syncAdminData();
+                    refreshActiveTabData();
+                })
+                .subscribe();
+        }
+        window.addEventListener('retrohub_product_added', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_product_updated', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_product_deleted', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_profile_updated', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_dispute_updated', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_categories_updated', () => { refreshActiveTabData(); });
+        window.addEventListener('retrohub_sync_complete', () => { refreshActiveTabData(); });
+    </script>
+</body>
+</html>

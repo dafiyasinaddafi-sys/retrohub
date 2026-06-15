@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ulasan Toko — RetroHub</title>
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="description" content="Baca semua ulasan pembeli untuk toko ini di RetroHub marketplace retro gaming terpercaya.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: var(--retro-bg, #FFF9F0); min-height: 100vh; }
+
+        .reviews-page-wrapper {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 16px clamp(12px, 4vw, 24px) 40px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--mario-blue, #002FBE);
+            text-decoration: none;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* Store Header Card */
+        .store-mini-card {
+            background: white;
+            border: 3px solid var(--retro-dark, #1A1A2E);
+            border-radius: 10px;
+            box-shadow: 4px 4px 0 var(--retro-dark, #1A1A2E);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .store-mini-logo {
+            width: 52px; height: 52px;
+            border-radius: 8px;
+            border: 2.5px solid var(--retro-dark, #1A1A2E);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-retro, 'Pixelify Sans', sans-serif);
+            font-size: 1.5rem; font-weight: 700; color: white;
+            background: var(--mario-blue, #002FBE);
+            flex-shrink: 0;
+        }
+        .store-mini-info h2 {
+            font-family: var(--font-retro, 'Pixelify Sans', sans-serif);
+            font-size: 1rem; margin: 0 0 3px;
+        }
+        .store-mini-info .meta { font-size: 0.72rem; color: #64748B; }
+
+        /* Rating Summary */
+        .rating-summary-box {
+            background: white;
+            border: 3px solid var(--retro-dark, #1A1A2E);
+            border-radius: 10px;
+            box-shadow: 4px 4px 0 var(--retro-dark, #1A1A2E);
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .rating-big-num {
+            text-align: center;
+            min-width: 80px;
+        }
+        .rating-big-num .num {
+            font-family: var(--font-retro, 'Pixelify Sans', sans-serif);
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--mario-yellow, #F7C948);
+            line-height: 1;
+        }
+        .rating-big-num .stars { font-size: 1rem; margin: 3px 0; }
+        .rating-big-num .count { font-size: 0.65rem; color: #64748B; }
+
+        .rating-bars { flex: 1; min-width: 160px; }
+        .rating-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: background 0.15s;
+        }
+        .rating-bar-row:hover { background: #F1F5F9; }
+        .rating-bar-row.active { background: #FEF9C3; }
+        .rating-bar-row .label { font-size: 0.68rem; color: #64748B; width: 28px; flex-shrink: 0; }
+        .rating-bar-row .bar-bg { flex: 1; height: 9px; background: #E2E8F0; border-radius: 5px; overflow: hidden; }
+        .rating-bar-row .bar-fill { height: 100%; background: var(--mario-yellow, #F7C948); border-radius: 5px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+        .rating-bar-row .count-label { font-size: 0.62rem; color: #64748B; width: 22px; text-align: right; flex-shrink: 0; }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border: 2px solid var(--retro-dark, #1A1A2E);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-bar label { font-size: 0.72rem; font-weight: 600; color: #374151; white-space: nowrap; }
+        .filter-bar select {
+            padding: 5px 8px;
+            border: 2px solid var(--retro-dark, #1A1A2E);
+            border-radius: 5px;
+            font-size: 0.72rem;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .filter-chip {
+            padding: 4px 10px;
+            border: 2px solid var(--retro-dark, #1A1A2E);
+            border-radius: 20px;
+            font-size: 0.68rem;
+            cursor: pointer;
+            background: white;
+            transition: all 0.15s;
+            font-family: inherit;
+            font-weight: 600;
+        }
+        .filter-chip:hover { background: #F1F5F9; }
+        .filter-chip.active { background: var(--mario-blue, #002FBE); color: white; border-color: var(--mario-blue, #002FBE); }
+
+        /* Review Card */
+        .review-card {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            transition: box-shadow 0.15s;
+        }
+        .review-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .review-card .rev-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .review-card .rev-user { font-size: 0.78rem; font-weight: bold; }
+        .review-card .rev-stars { font-size: 0.78rem; }
+        .review-card .rev-date { font-size: 0.62rem; color: #94A3B8; }
+        .review-card .rev-product { font-size: 0.65rem; color: var(--mario-blue, #002FBE); margin-bottom: 5px; }
+        .review-card .rev-text { font-size: 0.78rem; color: #374151; line-height: 1.5; }
+        .review-card .rev-photo { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid var(--retro-dark, #1A1A2E); margin-top: 8px; cursor: pointer; }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            width: 34px; height: 34px;
+            border: 2px solid var(--retro-dark, #1A1A2E);
+            border-radius: 5px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            background: white;
+            font-family: inherit;
+            font-weight: 600;
+            transition: all 0.12s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .page-btn:hover { background: #F1F5F9; }
+        .page-btn.active { background: var(--mario-blue, #002FBE); color: white; border-color: var(--mario-blue, #002FBE); }
+        .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .page-info { font-size: 0.72rem; color: #64748B; padding: 0 4px; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94A3B8;
+            font-size: 0.85rem;
+            border: 2px dashed #CBD5E1;
+            border-radius: 8px;
+            background: #F8FAFC;
+        }
+
+        /* Photo Lightbox */
+        .photo-lightbox {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            cursor: zoom-out;
+        }
+        .photo-lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+
+        @media (max-width: 480px) {
+            .rating-summary-box { flex-direction: column; gap: 12px; }
+            .rating-big-num { display: flex; align-items: center; gap: 10px; min-width: unset; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header id="main-header"></header>
+
+    <div class="reviews-page-wrapper">
+        <a href="#" onclick="history.back();return false;" class="back-link">⬅️ Kembali</a>
+
+        <!-- Store Mini Card -->
+        <div class="store-mini-card" id="store-mini-card">
+            <div class="store-mini-logo" id="rev-store-logo">S</div>
+            <div class="store-mini-info">
+                <h2 id="rev-store-name">@NamaToko</h2>
+                <div class="meta" id="rev-store-meta">Memuat...</div>
+            </div>
+        </div>
+
+        <!-- Rating Summary -->
+        <div class="rating-summary-box" id="rating-summary-box">
+            <div class="rating-big-num">
+                <div class="num" id="rev-avg">-</div>
+                <div class="stars" id="rev-stars">☆☆☆☆☆</div>
+                <div class="count" id="rev-count">0 ulasan</div>
+            </div>
+            <div class="rating-bars" id="rating-bars"></div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="review-search-input" placeholder="🔍 Cari ulasan atau nama produk..." oninput="applyFilters()" style="padding: 6px 12px; border: 2px solid var(--retro-dark); border-radius: 4px; box-shadow: 2px 2px 0px var(--retro-dark); font-family: inherit; font-size: 0.8rem; flex-grow: 1; min-width: 200px;">
+            <label style="margin-left: 8px;">Urutkan:</label>
+            <select id="sort-select" onchange="applyFilters()">
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+                <option value="highest">Bintang Tertinggi</option>
+                <option value="lowest">Bintang Terendah</option>
+            </select>
+            <button class="filter-chip active" id="chip-all" onclick="setStarFilter(0)">Semua</button>
+            <button class="filter-chip" id="chip-5" onclick="setStarFilter(5)">5⭐</button>
+            <button class="filter-chip" id="chip-4" onclick="setStarFilter(4)">4⭐</button>
+            <button class="filter-chip" id="chip-3" onclick="setStarFilter(3)">3⭐</button>
+            <button class="filter-chip" id="chip-2" onclick="setStarFilter(2)">2⭐</button>
+            <button class="filter-chip" id="chip-1" onclick="setStarFilter(1)">1⭐</button>
+            <button class="filter-chip" id="chip-media" onclick="setMediaFilter()">📷 Ada Foto</button>
+        </div>
+
+        <!-- Review List -->
+        <div id="review-list"></div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="db.js"></script>
+    <script src="ui.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const sellerId = urlParams.get('seller_id') || 'seller-1';
+
+        const REVIEWS_PER_PAGE = 10;
+        let currentPage = 1;
+        let starFilter = 0;      // 0 = semua
+        let mediaOnly  = false;
+        let allReviews = [];     // semua review seller ini (computed once per filter change)
+
+        // Kumpulkan semua review untuk seller ini (dari semua produknya)
+        function getSellerReviews() {
+            const products = db.getProducts().filter(p => p.seller_id === sellerId).map(p => p.id);
+            return db.getReviews().filter(r => products.includes(r.product_id) || r.seller_id === sellerId);
+        }
+
+        function initPage() {
+            const seller = db.getProfileById(sellerId);
+            if (!seller) {
+                document.getElementById('rev-store-name').textContent = 'Toko tidak ditemukan';
+                return;
+            }
+
+            // Isi store card
+            const initial = seller.store_name ? seller.store_name.charAt(0).toUpperCase() : 'S';
+            document.getElementById('rev-store-logo').textContent = initial;
+            document.getElementById('rev-store-name').textContent = '@' + seller.store_name;
+            document.getElementById('rev-store-meta').innerHTML = `
+                ${seller.owner_name ? `Pemilik: ${seller.owner_name} &nbsp;•&nbsp; ` : ''}
+                <a href="store.html?seller_id=${sellerId}" style="color:var(--mario-blue);text-decoration:none;font-weight:600;">Lihat Toko →</a>
+            `;
+
+            // Hitung rating summary
+            const reviews = getSellerReviews();
+            const total = reviews.length;
+            const avg = total > 0 ? reviews.reduce((s,r) => s + r.rating, 0) / total : 0;
+            const dist = [0,0,0,0,0];
+            reviews.forEach(r => { if (r.rating >= 1 && r.rating <= 5) dist[r.rating-1]++; });
+
+            document.getElementById('rev-avg').textContent = avg > 0 ? avg.toFixed(1) : '-';
+            document.getElementById('rev-stars').textContent = avg > 0
+                ? '⭐'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg))
+                : '☆☆☆☆☆';
+            document.getElementById('rev-count').textContent = total + ' ulasan';
+
+            // Bar distribusi
+            const barsEl = document.getElementById('rating-bars');
+            barsEl.innerHTML = [5,4,3,2,1].map(n => {
+                const c = dist[n-1];
+                const pct = total > 0 ? Math.round(c/total*100) : 0;
+                return `<div class="rating-bar-row" id="bar-row-${n}" onclick="setStarFilter(${n})">
+                    <span class="label">${n}⭐</span>
+                    <div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div>
+                    <span class="count-label">${c}</span>
+                </div>`;
+            }).join('');
+
+            applyFilters();
+        }
+
+        function setStarFilter(n) {
+            starFilter = n;
+            mediaOnly  = false;
+            currentPage = 1;
+            // Update chip states
+            ['all','5','4','3','2','1','media'].forEach(id => {
+                document.getElementById('chip-' + id)?.classList.remove('active');
+            });
+            [1,2,3,4,5].forEach(i => {
+                document.getElementById('bar-row-' + i)?.classList.remove('active');
+            });
+            if (n === 0) {
+                document.getElementById('chip-all').classList.add('active');
+            } else {
+                document.getElementById('chip-' + n)?.classList.add('active');
+                document.getElementById('bar-row-' + n)?.classList.add('active');
+            }
+            renderReviews();
+        }
+
+        function setMediaFilter() {
+            mediaOnly  = !mediaOnly;
+            starFilter = 0;
+            currentPage = 1;
+            ['all','5','4','3','2','1'].forEach(id => {
+                document.getElementById('chip-' + id)?.classList.remove('active');
+            });
+            document.getElementById('chip-all').classList.add('active');
+            document.getElementById('chip-media').classList.toggle('active', mediaOnly);
+            [1,2,3,4,5].forEach(i => document.getElementById('bar-row-' + i)?.classList.remove('active'));
+            renderReviews();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const sort = document.getElementById('sort-select').value;
+            let reviews = getSellerReviews();
+
+            // Filter bintang
+            if (starFilter > 0) reviews = reviews.filter(r => r.rating === starFilter);
+            // Filter foto
+            if (mediaOnly) reviews = reviews.filter(r => r.photo_url);
+
+            // Filter pencarian
+            const query = document.getElementById('review-search-input')?.value.toLowerCase().trim() || '';
+            if (query) {
+                reviews = reviews.filter(r => {
+                    const reviewText = (r.text || '').toLowerCase();
+                    const buyer = db.getProfileById(r.buyer_id);
+                    const buyerName = buyer ? (buyer.store_name || '').toLowerCase() : '';
+                    const buyerOwner = buyer ? (buyer.owner_name || '').toLowerCase() : '';
+                    const product = db.getProductById(r.product_id);
+                    const productTitle = product ? product.title.toLowerCase() : '';
+                    return reviewText.includes(query) || buyerName.includes(query) || buyerOwner.includes(query) || productTitle.includes(query);
+                });
+            }
+
+            // Sort
+            reviews = reviews.slice().sort((a, b) => {
+                if (sort === 'newest')  return new Date(b.created_at) - new Date(a.created_at);
+                if (sort === 'oldest')  return new Date(a.created_at) - new Date(b.created_at);
+                if (sort === 'highest') return b.rating - a.rating || new Date(b.created_at) - new Date(a.created_at);
+                if (sort === 'lowest')  return a.rating - b.rating || new Date(b.created_at) - new Date(a.created_at);
+                return 0;
+            });
+
+            allReviews = reviews;
+            renderPage();
+        }
+
+        function renderPage() {
+            const total = allReviews.length;
+            const totalPages = Math.max(1, Math.ceil(total / REVIEWS_PER_PAGE));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * REVIEWS_PER_PAGE;
+            const pageReviews = allReviews.slice(start, start + REVIEWS_PER_PAGE);
+
+            const listEl = document.getElementById('review-list');
+
+            if (total === 0) {
+                listEl.innerHTML = `<div class="empty-state">
+                    <div style="font-size:2rem;margin-bottom:8px;">⭐</div>
+                    Belum ada ulasan ${starFilter > 0 ? starFilter + ' bintang' : ''} ${mediaOnly ? 'dengan foto' : ''} untuk toko ini.
+                </div>`;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            listEl.innerHTML = pageReviews.map(rev => {
+                const buyer    = db.getProfileById(rev.buyer_id);
+                const product  = db.getProductById(rev.product_id);
+                const dateStr  = new Date(rev.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+                const starStr  = '⭐'.repeat(rev.rating) + '☆'.repeat(5 - rev.rating);
+                const photoEl  = rev.photo_url
+                    ? `<img src="${rev.photo_url}" class="rev-photo" alt="Foto ulasan" onclick="openLightbox('${rev.photo_url}')" title="Klik untuk memperbesar">`
+                    : '';
+                const productLink = product
+                    ? `<div class="rev-product">🛍️ <a href="product.html?id=${product.id}" style="color:var(--mario-blue);text-decoration:none;">${product.title}</a></div>`
+                    : '';
+                return `<div class="review-card">
+                    <div class="rev-header">
+                        <div>
+                            <span class="rev-user">@${buyer ? buyer.store_name : 'user'}</span>
+                            <span class="rev-stars" style="margin-left:6px;">${starStr}</span>
+                        </div>
+                        <span class="rev-date">${dateStr}</span>
+                    </div>
+                    ${productLink}
+                    <div class="rev-text">${rev.text}</div>
+                    ${photoEl}
+                </div>`;
+            }).join('');
+
+            // Render pagination
+            renderPagination(totalPages, total);
+
+            // Scroll ke atas list
+            listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderPagination(totalPages, totalReviews) {
+            const pagEl = document.getElementById('pagination');
+            if (totalPages <= 1) { pagEl.innerHTML = ''; return; }
+
+            const start = (currentPage - 1) * REVIEWS_PER_PAGE + 1;
+            const end   = Math.min(currentPage * REVIEWS_PER_PAGE, totalReviews);
+
+            // Tentukan halaman yang ditampilkan (window 5 halaman)
+            let pageNums = [];
+            const WINDOW = 2;
+            for (let i = Math.max(1, currentPage - WINDOW); i <= Math.min(totalPages, currentPage + WINDOW); i++) {
+                pageNums.push(i);
+            }
+
+            let html = `<span class="page-info">${start}–${end} dari ${totalReviews}</span>`;
+            html += `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
+
+            if (pageNums[0] > 1) {
+                html += `<button class="page-btn" onclick="goPage(1)">1</button>`;
+                if (pageNums[0] > 2) html += `<span class="page-info">…</span>`;
+            }
+
+            pageNums.forEach(n => {
+                html += `<button class="page-btn ${n === currentPage ? 'active' : ''}" onclick="goPage(${n})">${n}</button>`;
+            });
+
+            if (pageNums[pageNums.length - 1] < totalPages) {
+                if (pageNums[pageNums.length - 1] < totalPages - 1) html += `<span class="page-info">…</span>`;
+                html += `<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+            pagEl.innerHTML = html;
+        }
+
+        function goPage(n) {
+            const totalPages = Math.ceil(allReviews.length / REVIEWS_PER_PAGE);
+            if (n < 1 || n > totalPages) return;
+            currentPage = n;
+            renderPage();
+        }
+
+        function openLightbox(src) {
+            const lb = document.createElement('div');
+            lb.className = 'photo-lightbox';
+            lb.innerHTML = `<img src="${src}" alt="Foto ulasan">`;
+            lb.onclick = () => lb.remove();
+            document.body.appendChild(lb);
+        }
+
+        // Init
+        initPage();
+    </script>
+</body>
+</html>
