@@ -1627,11 +1627,15 @@ window._selectCourier = function(courierId) {
 window._deleteAddress = function(addrId) {
     if (!confirm('Hapus alamat ini?')) return;
     db.deleteAddress(addrId);
-    if (window._checkoutState.selectedAddressId === addrId) {
-        const remaining = db.getAddresses(window._checkoutState.buyer.id);
-        window._checkoutState.selectedAddressId = remaining.length > 0 ? remaining[0].id : null;
+    if (window._checkoutState) {
+        if (window._checkoutState.selectedAddressId === addrId) {
+            const remaining = db.getAddresses(window._checkoutState.buyer.id);
+            window._checkoutState.selectedAddressId = remaining.length > 0 ? remaining[0].id : null;
+        }
+        _renderCheckoutModal();
+    } else if (window._activeOrderAddressSelectionId) {
+        openChangeAddressForOrderModal(window._activeOrderAddressSelectionId);
     }
-    _renderCheckoutModal();
 };
 
 function _proceedToPayment() {
@@ -1698,7 +1702,7 @@ function _renderAddressForm(addrId) {
     document.getElementById('address-form-overlay')?.remove();
     const overlay = document.createElement('div');
     overlay.id = 'address-form-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9500;display:flex;align-items:flex-end;justify-content:center;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10030;display:flex;align-items:flex-end;justify-content:center;';
 
     const inputStyle = 'width:100%;border:2.5px solid var(--retro-dark);border-radius:4px;padding:7px;font-size:0.78rem;box-sizing:border-box;background:white;';
     const selectStyle = inputStyle + 'cursor:pointer;';
@@ -1800,6 +1804,16 @@ function _renderAddressForm(addrId) {
                 </div>
             </div>
 
+            <!-- Map Pinpoint -->
+            <div>
+                <label style="${labelStyle}">Titik Lokasi (Pinpoint Kurir) 📍</label>
+                <p style="font-size: 0.62rem; color: #64748B; margin: -2px 0 6px 0; line-height: 1.3;">Geser pin atau klik pada peta untuk menandai lokasi tepat.</p>
+                <div id="af-map" style="height: 150px; width: 100%; border: 2.5px solid var(--retro-dark); border-radius: 4px; margin-bottom: 6px; box-sizing: border-box; z-index: 1;"></div>
+                <input type="hidden" id="af-lat" value="${existing?.latitude || ''}">
+                <input type="hidden" id="af-lng" value="${existing?.longitude || ''}">
+                <button type="button" class="btn-retro btn-blue" style="font-size: 0.65rem; padding: 5px 8px; width: 100%; cursor: pointer;" onclick="window._useAfGeolocation()">Gunakan Lokasi GPS Saya 🛰️</button>
+            </div>
+
             <!-- Patokan -->
             <div>
                 <label style="${labelStyle}">🗺️ Patokan / Petunjuk Lokasi <span style="font-weight:400;color:#94A3B8;">(opsional)</span></label>
@@ -1828,6 +1842,9 @@ function _renderAddressForm(addrId) {
 
     // Inisialisasi dropdown wilayah
     _afInitWilayah(existing);
+
+    // Inisialisasi Map Pinpoint
+    window._initAfMap(existing);
 }
 
 // ---- Inisialisasi & cascade dropdown wilayah ----
@@ -2003,6 +2020,11 @@ window._saveAddressForm = function(addrId) {
 
     const buyerId = window._checkoutState?.buyer?.id || db.getCurrentUserId();
 
+    const latVal = document.getElementById('af-lat')?.value;
+    const lngVal = document.getElementById('af-lng')?.value;
+    const latitude = latVal ? parseFloat(latVal) : null;
+    const longitude = lngVal ? parseFloat(lngVal) : null;
+
     const addrData = {
         label,
         recipient_name: name,
@@ -2014,6 +2036,8 @@ window._saveAddressForm = function(addrId) {
         kelurahan: cleanWilayah(kelurahan),
         kode_pos: kodePos,
         patokan,
+        latitude,
+        longitude,
         is_default: isDefault
     };
 
@@ -2060,9 +2084,16 @@ window._saveAddressForm = function(addrId) {
         _renderCheckoutModal();
     } else if (window._activeOrderAddressSelectionId) {
         const orderId = window._activeOrderAddressSelectionId;
-        window._activeOrderAddressSelectionId = null; // reset
-        openOrderDetailModal(orderId);
-        showToast('Alamat Ditambahkan & Diterapkan 📍', 'Alamat baru berhasil disimpan dan diterapkan pada pesanan ini.', 'success');
+        if (addrId) {
+            // Jika edit template alamat dari histori, buka kembali modal pilihan alamat
+            openChangeAddressForOrderModal(orderId);
+            showToast('Alamat Diperbarui ✏️', 'Perubahan template alamat berhasil disimpan.', 'success');
+        } else {
+            // Jika tambah alamat baru dari histori, langsung terapkan & refresh detail order
+            window._activeOrderAddressSelectionId = null; // reset
+            openOrderDetailModal(orderId);
+            showToast('Alamat Ditambahkan & Diterapkan 📍', 'Alamat baru berhasil disimpan dan diterapkan pada pesanan ini.', 'success');
+        }
     }
 };
 
@@ -2104,6 +2135,104 @@ window._fillAddressFromProfile = async function() {
         }
     }
     showToast('Autofill Berhasil ⚡', 'Berhasil memuat data alamat dari profil registrasi. Silakan lengkapi dan simpan.', 'success');
+};
+
+// ---- Setup Map Pinpoint & GPS Form Alamat ----
+window._initAfMap = function(existing) {
+    if (typeof L === 'undefined') {
+        if (!document.getElementById('leaflet-css')) {
+            const link = document.createElement('link');
+            link.id = 'leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+            document.head.appendChild(link);
+        }
+        if (!document.getElementById('leaflet-js')) {
+            const script = document.createElement('script');
+            script.id = 'leaflet-js';
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+            script.onload = () => window._setupAfMap(existing);
+            document.head.appendChild(script);
+        } else {
+            setTimeout(() => window._setupAfMap(existing), 500);
+        }
+    } else {
+        window._setupAfMap(existing);
+    }
+};
+
+window._setupAfMap = function(existing) {
+    const mapContainer = document.getElementById('af-map');
+    if (!mapContainer) return;
+
+    const defaultLatLng = [-6.2088, 106.8456]; // Jakarta
+    let startLatLng = defaultLatLng;
+
+    if (existing?.latitude && existing?.longitude) {
+        startLatLng = [parseFloat(existing.latitude), parseFloat(existing.longitude)];
+    } else {
+        // Fallback ke profil registrasi jika ada
+        const profile = db.getProfileById(db.getCurrentUserId());
+        if (profile?.address_lat && profile?.address_lng) {
+            startLatLng = [parseFloat(profile.address_lat), parseFloat(profile.address_lng)];
+        }
+    }
+
+    document.getElementById('af-lat').value = startLatLng[0];
+    document.getElementById('af-lng').value = startLatLng[1];
+
+    // Reset map jika sudah ter-inisialisasi
+    if (window._afMapInstance) {
+        window._afMapInstance.remove();
+    }
+
+    const map = L.map('af-map').setView(startLatLng, 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const marker = L.marker(startLatLng, { draggable: true }).addTo(map);
+
+    const updateCoords = (lat, lng) => {
+        document.getElementById('af-lat').value = lat.toFixed(7);
+        document.getElementById('af-lng').value = lng.toFixed(7);
+    };
+
+    marker.on('dragend', () => {
+        const position = marker.getLatLng();
+        updateCoords(position.lat, position.lng);
+    });
+
+    map.on('click', (e) => {
+        marker.setLatLng(e.latlng);
+        updateCoords(e.latlng.lat, e.latlng.lng);
+    });
+
+    setTimeout(() => { map.invalidateSize(); }, 300);
+
+    window._afMapInstance = map;
+    window._afMarkerInstance = marker;
+};
+
+window._useAfGeolocation = function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                if (window._afMarkerInstance && window._afMapInstance) {
+                    window._afMarkerInstance.setLatLng([lat, lng]);
+                    window._afMapInstance.setView([lat, lng], 16);
+                    document.getElementById('af-lat').value = lat.toFixed(7);
+                    document.getElementById('af-lng').value = lng.toFixed(7);
+                    showToast("Lokasi Ditemukan 📍", "Titik lokasi berhasil disesuaikan dengan GPS Anda.", "success");
+                }
+            },
+            () => {
+                showToast("GPS Gagal 🛰️", "Tidak dapat mendeteksi lokasi GPS Anda.", "error");
+            }
+        );
+    }
 };
 
 // ---- Modal Pilihan Alamat untuk Pesanan di Histori ----
@@ -2157,8 +2286,14 @@ window.openChangeAddressForOrderModal = function(orderId) {
                         </div>
                         ${addr.patokan ? `<div style="font-size:0.65rem;color:#94A3B8;font-style:italic;">📍 ${addr.patokan}</div>` : ''}
                     </div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <button onclick="event.stopPropagation();openEditAddressForm('${addr.id}')"
+                            style="font-size:0.65rem;border:1.5px solid var(--retro-dark);border-radius:3px;padding:2px 7px;background:white;cursor:pointer;font-family:var(--font-retro);z-index: 10;">✏️</button>
+                        <button onclick="event.stopPropagation();_deleteAddress('${addr.id}')"
+                            style="font-size:0.65rem;border:1.5px solid #EF4444;border-radius:3px;padding:2px 7px;background:white;cursor:pointer;color:#EF4444;font-family:var(--font-retro);z-index: 10;">🗑️</button>
+                    </div>
                 </div>
-                ${isSelected ? '<div style="position:absolute;top:10px;right:10px;width:16px;height:16px;background:var(--mario-blue);border-radius:50%;border:2px solid white;box-shadow:0 0 0 2px var(--mario-blue);"></div>' : ''}
+                ${isSelected ? '<div style="position:absolute;top:10px;right:40px;width:16px;height:16px;background:var(--mario-blue);border-radius:50%;border:2px solid white;box-shadow:0 0 0 2px var(--mario-blue);"></div>' : ''}
             </div>`;
         }).join('');
         

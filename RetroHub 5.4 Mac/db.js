@@ -3941,6 +3941,8 @@ const db = {
       provinsi: addr.provinsi || '',
       kode_pos: addr.kode_pos || '',
       patokan: addr.patokan || '',
+      latitude: addr.latitude || null,
+      longitude: addr.longitude || null,
       is_default: isFirst ? true : (addr.is_default || false),
       created_at: new Date().toISOString()
     };
@@ -3963,6 +3965,8 @@ const db = {
             provinsi: newAddr.provinsi || null,
             kode_pos: newAddr.kode_pos || null,
             patokan: newAddr.patokan || null,
+            latitude: newAddr.latitude,
+            longitude: newAddr.longitude,
             is_default: newAddr.is_default,
             created_at: newAddr.created_at
         }).then(({ error }) => {
