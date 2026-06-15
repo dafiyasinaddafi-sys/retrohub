@@ -35,7 +35,33 @@ interface OngkirRequest {
   couriers?: string;
 }
 
+function getAllowedOrigin(request: Request): string {
+  const origin = request.headers.get('Origin');
+  if (origin) {
+    if (
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:') ||
+      /^https:\/\/retrohub-[a-z0-9-]+\.pages\.dev$/.test(origin) ||
+      origin === 'https://retrohub.pages.dev'
+    ) {
+      return origin;
+    }
+  }
+  return 'https://retrohub-new.pages.dev';
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const allowedOrigin = getAllowedOrigin(request);
+  const jsonResponse = (status: number, body: object) => new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': allowedOrigin,
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+
   // ── 1. Validasi API key sudah di-set ──────────────────────────────────────
   if (!env.BITESHIP_API_KEY) {
     return jsonResponse(503, {
@@ -109,26 +135,12 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 };
 
-// ── Helper ──────────────────────────────────────────────────────────────────
-function jsonResponse(status: number, body: object): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      // Hanya izinkan request dari domain RetroHub sendiri
-      'Access-Control-Allow-Origin': 'https://retrohub-8sv.pages.dev',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
-}
-
-// Handle CORS preflight
-export const onRequestOptions: PagesFunction = async () => {
+export const onRequestOptions: PagesFunction = async ({ request }) => {
+  const allowedOrigin = getAllowedOrigin(request);
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': 'https://retrohub-8sv.pages.dev',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },

@@ -28,7 +28,31 @@ interface Env {
   SUPABASE_SERVICE_KEY: string;
 }
 
+function getAllowedOrigin(request: Request): string {
+  const origin = request.headers.get('Origin');
+  if (origin) {
+    if (
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:') ||
+      /^https:\/\/retrohub-[a-z0-9-]+\.pages\.dev$/.test(origin) ||
+      origin === 'https://retrohub.pages.dev'
+    ) {
+      return origin;
+    }
+  }
+  return 'https://retrohub-new.pages.dev';
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+  const allowedOrigin = getAllowedOrigin(request);
+  const jsonResponse = (status: number, body: object) => new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': allowedOrigin,
+    },
+  });
+
   // ── 1. Validasi env variables ──────────────────────────────────────────────
   if (!env.MIDTRANS_SERVER_KEY || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
     return jsonResponse(503, {
@@ -144,7 +168,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       name: String(o.product_title || 'Produk RetroHub').substring(0, 50),
     })),
     callbacks: {
-      finish: 'https://retrohub-8sv.pages.dev/index.html',
+      finish: `${allowedOrigin}/index.html`,
     },
   };
 
@@ -184,22 +208,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 };
 
-function jsonResponse(status: number, body: object): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'https://retrohub-8sv.pages.dev',
-    },
-  });
-}
-
-export const onRequestOptions: PagesFunction = async () =>
-  new Response(null, {
+export const onRequestOptions: PagesFunction = async ({ request }) => {
+  const allowedOrigin = getAllowedOrigin(request);
+  return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': 'https://retrohub-8sv.pages.dev',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   });
+};
