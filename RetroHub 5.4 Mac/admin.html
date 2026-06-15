@@ -521,7 +521,7 @@
                     </div>
 
                     <!-- Transaksi Container -->
-                    <div id="transactions-monitor-container" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div id="transactions-monitor-container" style="display: flex; flex-direction: column; gap: 6px; max-height: 480px; overflow-y: auto; padding: 10px; border: 2.5px solid var(--retro-dark); border-radius: 8px; background-color: #F8FAFC; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.05);">
                         <!-- Diisi dinamis -->
                     </div>
 
@@ -544,15 +544,15 @@
                             </select>
                         </div>
                         
-                        <div style="overflow-x: auto; background: white; border: 3px solid var(--retro-dark); border-radius: 8px; box-shadow: 4px 4px 0px var(--retro-dark); padding: 12px;">
+                        <div style="max-height: 300px; overflow-y: auto; overflow-x: auto; background: white; border: 3px solid var(--retro-dark); border-radius: 8px; box-shadow: 4px 4px 0px var(--retro-dark); padding: 12px; position: relative;">
                             <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
-                                <thead>
-                                    <tr style="border-bottom: 2px solid var(--retro-dark); font-family: var(--font-retro); font-size: 0.75rem; text-align: left;">
-                                        <th style="padding: 8px;">Log ID</th>
-                                        <th style="padding: 8px;">Order ID</th>
-                                        <th style="padding: 8px;">Nominal</th>
-                                        <th style="padding: 8px;">Status Respon</th>
-                                        <th style="padding: 8px;">Waktu Aktivitas</th>
+                                <thead style="position: sticky; top: -12px; background: white; z-index: 10; box-shadow: 0 2px 0px var(--retro-dark);">
+                                    <tr style="border-bottom: 2px solid var(--retro-dark); font-family: var(--font-retro); font-size: 0.75rem; text-align: left; background: white;">
+                                        <th style="padding: 8px 6px;">Log ID</th>
+                                        <th style="padding: 8px 6px;">Order ID</th>
+                                        <th style="padding: 8px 6px;">Nominal</th>
+                                        <th style="padding: 8px 6px;">Status Respon</th>
+                                        <th style="padding: 8px 6px;">Waktu Aktivitas</th>
                                     </tr>
                                 </thead>
                                 <tbody id="api-logs-tbody">
@@ -1977,11 +1977,11 @@
 
                 return `
                     <tr style="border-bottom: 1px solid var(--retro-light-gray);">
-                        <td style="padding: 8px; font-family: var(--font-number); font-weight: bold;">${l.log_id || l.id}</td>
-                        <td style="padding: 8px; font-weight: bold; color: var(--mario-blue); cursor: pointer; text-decoration: underline;" onclick="scrollToAndOpenOrder('${l.order_id}')">${l.order_id}</td>
-                        <td style="padding: 8px; font-family: var(--font-number);">Rp${l.amount.toLocaleString('id-ID')}</td>
-                        <td style="padding: 8px;">${statusTag}</td>
-                        <td style="padding: 8px;">${new Date(l.timestamp).toLocaleString('id-ID')}</td>
+                        <td style="padding: 4px 6px; font-family: var(--font-number); font-weight: bold;">${l.log_id || l.id}</td>
+                        <td style="padding: 4px 6px; font-weight: bold; color: var(--mario-blue); cursor: pointer; text-decoration: underline;" onclick="scrollToAndOpenOrder('${l.order_id}')">${l.order_id}</td>
+                        <td style="padding: 4px 6px; font-family: var(--font-number);">Rp${l.amount.toLocaleString('id-ID')}</td>
+                        <td style="padding: 4px 6px;">${statusTag}</td>
+                        <td style="padding: 4px 6px;">${new Date(l.timestamp).toLocaleString('id-ID')}</td>
                     </tr>
                 `;
             }).join('');
@@ -2336,7 +2336,7 @@
                 }
 
                 return `
-                    <div class="verify-card" style="background-color: #FFFFFF; padding: 10px 14px; cursor: pointer; border: 2.5px solid var(--retro-dark); border-radius: 8px; box-shadow: 4px 4px 0px var(--retro-dark); margin-bottom: 12px;" onclick="toggleOrderCollapse('${order.id}')">
+                    <div class="verify-card" style="background-color: #FFFFFF; padding: 6px 12px; cursor: pointer; border: 2.5px solid var(--retro-dark); border-radius: 8px; box-shadow: 3px 3px 0px var(--retro-dark); margin-bottom: 6px;" onclick="toggleOrderCollapse('${order.id}')">
                         <div class="verify-header" style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                 <span style="font-family: var(--font-retro); font-size: 0.8rem; color: var(--retro-dark); font-weight: bold;">
