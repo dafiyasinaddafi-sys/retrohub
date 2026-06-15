@@ -3981,6 +3981,7 @@ const db = {
             recipient_phone: newAddr.recipient_phone,
             address_detail: newAddr.address_detail,
             kecamatan: newAddr.kecamatan || null,
+            kelurahan: newAddr.kelurahan || null,
             kota: newAddr.kota || null,
             provinsi: newAddr.provinsi || null,
             kode_pos: newAddr.kode_pos || null,
@@ -4007,7 +4008,19 @@ const db = {
     Object.assign(all[idx], updates);
     localStorage.setItem(DB_KEYS.ADDRESSES, JSON.stringify(all));
     if (!isSimMode && supabaseClient) {
-        supabaseClient.from('buyer_addresses').update(updates).eq('id', addrId).then(({ error }) => {
+        // Sanitisasi data agar hanya mengirim kolom yang ada di database
+        const dbUpdates = {};
+        const allowedColumns = [
+          'label', 'recipient_name', 'recipient_phone', 'address_detail',
+          'provinsi', 'kota', 'kecamatan', 'kelurahan', 'kode_pos', 'patokan',
+          'latitude', 'longitude', 'is_default'
+        ];
+        allowedColumns.forEach(col => {
+          if (updates[col] !== undefined) {
+            dbUpdates[col] = updates[col];
+          }
+        });
+        supabaseClient.from('buyer_addresses').update(dbUpdates).eq('id', addrId).then(({ error }) => {
             if (error) console.warn('[RetroHub] updateAddress sync failed:', error.message);
         });
     }
