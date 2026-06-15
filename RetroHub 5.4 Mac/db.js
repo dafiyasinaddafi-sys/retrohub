@@ -973,6 +973,28 @@ async function syncDatabaseLive() {
                 } else {
                     profiles.push(myFullProfile);
                 }
+
+                // Jika admin, sync api_logs dari Supabase
+                if (myFullProfile.is_admin) {
+                    const { data: logsData, error: logsErr } = await supabaseClient
+                        .from('api_logs')
+                        .select('*')
+                        .order('timestamp', { ascending: false });
+                    if (!logsErr && logsData) {
+                        const mappedLogs = logsData.map(l => ({
+                            id: l.id,
+                            log_id: l.log_id,
+                            order_id: l.order_id,
+                            amount: Number(l.amount),
+                            status: l.status,
+                            timestamp: l.timestamp
+                        }));
+                        localStorage.setItem(DB_KEYS.API_LOGS, JSON.stringify(mappedLogs));
+                        console.log('[RetroHub] API Logs synchronized for Admin:', mappedLogs.length);
+                    } else if (logsErr) {
+                        console.error('[RetroHub] Gagal mengambil api_logs dari Supabase:', logsErr);
+                    }
+                }
             } else {
                 // Jika belum terdaftar di database, daftarkan profil baru
                 const _existsInProfiles = profiles && profiles.some(p => p.id === _authUser.id);
@@ -1484,7 +1506,30 @@ function initRealtimeListeners() {
         })
         .subscribe();
 
-    console.log('[RetroHub] ✅ Realtime listeners aktif: chat, bids, orders, products, profiles, categories, disputes, addresses');
+    // ─────────────────────────────────────────────────────────────────────────
+    // 9. API LOGS (INSERT — untuk admin log realtime)
+    // ─────────────────────────────────────────────────────────────────────────
+    supabaseClient.channel('api-logs-live')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'api_logs' }, payload => {
+            const l = payload.new;
+            if (!l || !l.id) return;
+            const logs = JSON.parse(localStorage.getItem(DB_KEYS.API_LOGS)) || [];
+            if (!logs.some(item => item.id === l.id)) {
+                logs.unshift({
+                    id: l.id,
+                    log_id: l.log_id,
+                    order_id: l.order_id,
+                    amount: Number(l.amount),
+                    status: l.status,
+                    timestamp: l.timestamp
+                });
+                localStorage.setItem(DB_KEYS.API_LOGS, JSON.stringify(logs));
+                window.dispatchEvent(new CustomEvent('retrohub_api_logs_updated', { detail: l }));
+            }
+        })
+        .subscribe();
+
+    console.log('[RetroHub] ✅ Realtime listeners aktif: chat, bids, orders, products, profiles, categories, disputes, addresses, api_logs');
 }
 
 // Window API Helpers
@@ -2899,6 +2944,12 @@ const db = {
       if (status === 'delivered') {
         orders[index].delivered_at = new Date().toISOString();
         updates.delivered_at = orders[index].delivered_at;
+
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].buyer_id,
+          `📬 Paket pesanan #${id} ("${orders[index].product_title}") telah tiba di tujuan. Silakan cek barang Anda dan klik "Konfirmasi Terima" jika semua sudah sesuai.`
+        );
       }
       if (status === 'completed') {
         orders[index].completed_at = new Date().toISOString();
@@ -2914,11 +2965,45 @@ const db = {
               supabaseClient.from('products').update({ status: 'sold' }).eq('id', orders[index].product_id).then();
           }
         }
+
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].buyer_id,
+          `🎉 Transaksi pesanan #${id} ("${orders[index].product_title}") telah selesai. Terima kasih telah berbelanja di RetroHub!`
+        );
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].seller_id,
+          `🎉 Transaksi pesanan #${id} ("${orders[index].product_title}") telah selesai. Dana penjualan sebesar Rp${orders[index].price_deal.toLocaleString('id-ID')} telah dicairkan ke saldo toko Anda.`
+        );
+      }
+      if (status === 'disputed') {
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].buyer_id,
+          `⚠️ Komplain Anda untuk pesanan #${id} ("${orders[index].product_title}") telah diajukan. Dana ditahan sementara oleh sistem selagi admin memediasi sengketa ini.`
+        );
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].seller_id,
+          `⚠️ Pembeli mengajukan komplain untuk pesanan #${id} ("${orders[index].product_title}"). Dana transaksi ditahan sementara menunggu keputusan mediasi admin.`
+        );
       }
       if (status === 'refunded') {
         orders[index].refunded_at = new Date().toISOString();
         const amount = Number(orders[index].price_deal || orders[index].price || 0) + Number(orders[index].shipping_cost || 0);
         db.refundToBuyerWallet(orders[index].buyer_id, amount);
+
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].buyer_id,
+          `💵 Dana pesanan #${id} sebesar Rp${amount.toLocaleString('id-ID')} telah direfund sepenuhnya ke Wallet Anda.`
+        );
+        db.sendPrivateChat(
+          'admin-demo',
+          orders[index].seller_id,
+          `🚫 Transaksi pesanan #${id} ("${orders[index].product_title}") dibatalkan/refunded. Dana dikembalikan ke Wallet pembeli.`
+        );
       }
       localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(orders));
 
@@ -3176,6 +3261,12 @@ const db = {
         `
       );
 
+      db.sendPrivateChat(
+        'admin-demo',
+        order.buyer_id,
+        `🚚 Pesanan #${order.id} ("${order.product_title}") telah dikirim oleh penjual dengan nomor resi ${trackingNumber} (${(order.shipping_courier || 'JNT').toUpperCase()}). Silakan pantau pengiriman Anda.`
+      );
+
       return orders[index];
     }
     return null;
@@ -3356,6 +3447,21 @@ const db = {
         </div>
       `
     );
+
+    // Chat notifications
+    const refundAmount = (order.status === 'to_ship' || order.status === 'shipping' || order.status === 'delivered' || order.status === 'disputed')
+      ? (Number(order.price_deal || order.price || 0) + Number(order.shipping_cost || 0))
+      : 0;
+
+    let buyerMsg = `🚫 Pesanan #${order.id} ("${order.product_title}") telah dibatalkan oleh ${cancelledBy === order.buyer_id ? 'Anda' : (cancelledBy === order.seller_id ? 'penjual' : 'sistem')}. Alasan: ${reason || '-'}.`;
+    if (refundAmount > 0) {
+      buyerMsg += ` Dana sebesar Rp${refundAmount.toLocaleString('id-ID')} telah dikembalikan ke Wallet Anda.`;
+    }
+    
+    let sellerMsg = `🚫 Pesanan #${order.id} ("${order.product_title}") telah dibatalkan oleh ${cancelledBy === order.seller_id ? 'Anda' : (cancelledBy === order.buyer_id ? 'pembeli' : 'sistem')}. Alasan: ${reason || '-'}.`;
+
+    db.sendPrivateChat('admin-demo', order.buyer_id, buyerMsg);
+    db.sendPrivateChat('admin-demo', order.seller_id, sellerMsg);
 
     return orders[idx];
   },
@@ -3642,41 +3748,57 @@ const db = {
     localStorage.setItem(DB_KEYS.CHATS, JSON.stringify(chats));
 
     // Supabase Sync
-    // Skip jika senderId/receiverId bukan UUID valid (misal 'admin-demo', 'buyer-demo', dll)
-    const _uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!isSimMode && supabaseClient && _uuidRegex.test(senderId) && _uuidRegex.test(receiverId)) {
-        // Construct roomId: 'buyerId_sellerId'
-        const senderProf = db.getProfileById(senderId);
-        const receiverProf = db.getProfileById(receiverId);
-        let buyerId = senderId;
-        let sellerId = receiverId;
-        if (senderProf && senderProf.is_seller) {
-            buyerId = receiverId;
-            sellerId = senderId;
-        } else if (receiverProf && receiverProf.is_seller) {
-            buyerId = senderId;
-            sellerId = receiverId;
-        } else if (senderProf && senderProf.is_admin) {
-            buyerId = receiverId;
-            sellerId = senderId;
+    if (!isSimMode && supabaseClient) {
+        let resolvedSenderId = senderId;
+        let resolvedReceiverId = receiverId;
+
+        // Resolve admin-demo ke UUID admin asli
+        if (resolvedSenderId === 'admin-demo') {
+            const profiles = JSON.parse(localStorage.getItem(DB_KEYS.PROFILES) || '[]');
+            const adminProfile = profiles.find(p => p.is_admin === true);
+            if (adminProfile) resolvedSenderId = adminProfile.id;
         }
-        const roomId = buyerId + '_' + sellerId;
+        if (resolvedReceiverId === 'admin-demo') {
+            const profiles = JSON.parse(localStorage.getItem(DB_KEYS.PROFILES) || '[]');
+            const adminProfile = profiles.find(p => p.is_admin === true);
+            if (adminProfile) resolvedReceiverId = adminProfile.id;
+        }
 
-        const payload = {
-            id: newChat.id,
-            room_id: roomId,
-            sender_id: senderId,
-            receiver_id: receiverId,
-            message_text: message,
-            media_url: mediaUrl || null,
-            media_type: mediaType || null,
-            read: false,
-            created_at: newChat.created_at
-        };
+        const _uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (_uuidRegex.test(resolvedSenderId) && _uuidRegex.test(resolvedReceiverId)) {
+            // Construct roomId: 'buyerId_sellerId'
+            const senderProf = db.getProfileById(resolvedSenderId);
+            const receiverProf = db.getProfileById(resolvedReceiverId);
+            let buyerId = resolvedSenderId;
+            let sellerId = resolvedReceiverId;
+            if (senderProf && senderProf.is_seller) {
+                buyerId = resolvedReceiverId;
+                sellerId = resolvedSenderId;
+            } else if (receiverProf && receiverProf.is_seller) {
+                buyerId = resolvedSenderId;
+                sellerId = resolvedReceiverId;
+            } else if (senderProf && senderProf.is_admin) {
+                buyerId = resolvedReceiverId;
+                sellerId = resolvedSenderId;
+            }
+            const roomId = buyerId + '_' + sellerId;
 
-        supabaseClient.from('chat_messages').insert(payload).then(({ error }) => {
-            if (error) console.error("Error inserting chat message in Supabase:", error);
-        });
+            const payload = {
+                id: newChat.id,
+                room_id: roomId,
+                sender_id: resolvedSenderId,
+                receiver_id: resolvedReceiverId,
+                message_text: message,
+                media_url: mediaUrl || null,
+                media_type: mediaType || null,
+                read: false,
+                created_at: newChat.created_at
+            };
+
+            supabaseClient.from('chat_messages').insert(payload).then(({ error }) => {
+                if (error) console.error("Error inserting chat message in Supabase:", error);
+            });
+        }
     }
 
     return newChat;
@@ -3754,6 +3876,20 @@ const db = {
     if (idx !== -1) {
       Object.assign(orders[idx], fields);
       localStorage.setItem(DB_KEYS.ORDERS, JSON.stringify(orders));
+
+      // Supabase Sync
+      if (!isSimMode && supabaseClient) {
+        supabaseClient.from('orders').update(fields).eq('id', orderId).then(({ error }) => {
+          if (error) {
+            console.error('[RetroHub] Error updating order fields in Supabase:', error);
+          } else {
+            // Trigger local event to notify other UI components if necessary
+            window.dispatchEvent(new CustomEvent('retrohub_order_updated', {
+              detail: { ...orders[idx] }
+            }));
+          }
+        });
+      }
       return orders[idx];
     }
     return null;
@@ -3789,7 +3925,9 @@ const db = {
 
   addAddress: (userId, addr) => {
     const all = JSON.parse(localStorage.getItem(DB_KEYS.ADDRESSES) || '[]');
-    const id = 'addr-' + Date.now() + '-' + Math.random().toString(36).slice(2,6);
+    const id = (isSimMode || !supabaseClient)
+      ? 'addr-' + Date.now() + '-' + Math.random().toString(36).slice(2,6)
+      : _generateUUID();
     const isFirst = all.filter(a => a.user_id === userId).length === 0;
     const newAddr = {
       id,
@@ -3998,6 +4136,12 @@ const db = {
             <p>Terima kasih,<br>Sistem RetroHub</p>
         </div>
       `
+    );
+
+    db.sendPrivateChat(
+      'admin-demo',
+      userId,
+      `💸 Pengajuan penarikan dana Anda sebesar Rp${Number(amount).toLocaleString('id-ID')} ke rekening ${bankName} - ${accountNumber} telah kami terima dan sedang antri untuk diverifikasi oleh admin RetroHub. (ID: ${newWd.id})`
     );
 
     // Jika ini adalah buyer, wallet_balance sudah dipotong di UI sebelum memanggil createWithdrawal

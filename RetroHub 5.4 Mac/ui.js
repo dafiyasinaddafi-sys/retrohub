@@ -1691,7 +1691,8 @@ function openEditAddressForm(addrId) {
 
 function _renderAddressForm(addrId) {
     const isEdit = !!addrId;
-    const addresses = db.getAddresses(window._checkoutState.buyer.id);
+    const buyerId = window._checkoutState?.buyer?.id || db.getCurrentUserId();
+    const addresses = db.getAddresses(buyerId);
     const existing = isEdit ? addresses.find(a => a.id === addrId) : null;
 
     document.getElementById('address-form-overlay')?.remove();
@@ -1714,6 +1715,8 @@ function _renderAddressForm(addrId) {
                 style="background:rgba(255,255,255,0.2);color:white;border:2px solid white;border-radius:4px;width:30px;height:30px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">✖</button>
         </div>
         <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <!-- Autofill from Profile Button -->
+            <button onclick="window._fillAddressFromProfile()" class="btn-retro btn-white" style="font-size:0.7rem;padding:6.8px 12px;margin-bottom:4px;border-color:var(--mario-blue);color:var(--mario-blue);font-weight:bold;width:100%;box-sizing:border-box;">⚡ Gunakan Alamat Sesuai Ketika Registrasi</button>
 
             <!-- Label & Nama -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -1998,6 +2001,8 @@ window._saveAddressForm = function(addrId) {
         return;
     }
 
+    const buyerId = window._checkoutState?.buyer?.id || db.getCurrentUserId();
+
     const addrData = {
         label,
         recipient_name: name,
@@ -2015,13 +2020,238 @@ window._saveAddressForm = function(addrId) {
     if (addrId) {
         db.updateAddress(addrId, addrData);
     } else {
-        const newAddr = db.addAddress(window._checkoutState.buyer.id, addrData);
-        window._checkoutState.selectedAddressId = newAddr.id;
+        const newAddr = db.addAddress(buyerId, addrData);
+        if (window._checkoutState) {
+            window._checkoutState.selectedAddressId = newAddr.id;
+        }
+        if (window._activeOrderAddressSelectionId) {
+            const orderId = window._activeOrderAddressSelectionId;
+            const order = db.getOrderById(orderId);
+            if (order) {
+                const product = db.getProductById(order.product_id);
+                const seller = db.getProfileById(order.seller_id);
+                const rate = db.getRealShippingRate(
+                    seller?.address_kecamatan || 'Depok',
+                    newAddr.kecamatan || newAddr.kota || '',
+                    product?.weight_grams || 250,
+                    order.shipping_courier || 'jnt'
+                );
+                const fullAddressString = `${newAddr.address_detail}${newAddr.kecamatan ? ', ' + newAddr.kecamatan : ''}${newAddr.kota ? ', ' + newAddr.kota : ''}${newAddr.kode_pos ? ' ' + newAddr.kode_pos : ''}`;
+                const priceDeal = Number(order.price_deal || order.price || 0);
+                const adminFee = Number(order.admin_fee || 0);
+                const newTotal = priceDeal + rate + adminFee;
+
+                db.updateOrderField(orderId, {
+                    shipping_address: fullAddressString,
+                    recipient_name: newAddr.recipient_name,
+                    recipient_phone: newAddr.recipient_phone,
+                    address_label: newAddr.label,
+                    address_patokan: newAddr.patokan || '',
+                    shipping_cost: rate,
+                    total_payment: newTotal
+                });
+            }
+        }
     }
 
     document.getElementById('address-form-overlay').remove();
-    _recalcShipping();
-    _renderCheckoutModal();
+    if (window._checkoutState) {
+        _recalcShipping();
+        _renderCheckoutModal();
+    } else if (window._activeOrderAddressSelectionId) {
+        const orderId = window._activeOrderAddressSelectionId;
+        window._activeOrderAddressSelectionId = null; // reset
+        openOrderDetailModal(orderId);
+        showToast('Alamat Ditambahkan & Diterapkan 📍', 'Alamat baru berhasil disimpan dan diterapkan pada pesanan ini.', 'success');
+    }
+};
+
+// ---- Fungsi Autofill Alamat dari Profil Registrasi ----
+window._fillAddressFromProfile = async function() {
+    const currentUserId = db.getCurrentUserId();
+    if (!currentUserId) return;
+    const profile = db.getProfileById(currentUserId);
+    if (!profile) return;
+
+    const nameInput = document.getElementById('af-name');
+    if (nameInput) nameInput.value = profile.full_name || profile.store_name || '';
+
+    const phoneInput = document.getElementById('af-phone');
+    if (phoneInput) phoneInput.value = profile.phone_number || '';
+
+    const detailInput = document.getElementById('af-detail');
+    if (detailInput) detailInput.value = profile.address_detail || '';
+
+    // Cascade dropdown wilayah
+    const provSel = document.getElementById('af-provinsi-select');
+    if (profile.address_provinsi && provSel) {
+        let foundProv = false;
+        for (let i = 0; i < provSel.options.length; i++) {
+            if (provSel.options[i].text.toLowerCase().includes(profile.address_provinsi.toLowerCase())) {
+                provSel.selectedIndex = i;
+                foundProv = true;
+                break;
+            }
+        }
+        if (foundProv) {
+            const existingData = {
+                provinsi: profile.address_provinsi,
+                kota: profile.address_kota,
+                kecamatan: profile.address_kecamatan,
+                kelurahan: profile.address_kelurahan
+            };
+            await _afOnProvinsiChange(existingData);
+        }
+    }
+    showToast('Autofill Berhasil ⚡', 'Berhasil memuat data alamat dari profil registrasi. Silakan lengkapi dan simpan.', 'success');
+};
+
+// ---- Modal Pilihan Alamat untuk Pesanan di Histori ----
+window.openChangeAddressForOrderModal = function(orderId) {
+    const order = db.getOrderById(orderId);
+    if (!order) return;
+    
+    // Set active order address selection context
+    window._activeOrderAddressSelectionId = orderId;
+    
+    const buyerId = order.buyer_id;
+    const addresses = db.getAddresses(buyerId);
+    
+    // Remove if already exists
+    document.getElementById('order-change-address-overlay')?.remove();
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'order-change-address-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10020;display:flex;align-items:flex-end;justify-content:center;';
+    
+    const addrListHTML = addresses.length === 0 ? `
+        <div style="text-align:center;padding:24px;color:#94A3B8;font-size:0.8rem;">
+            📍 Belum ada alamat tersimpan.<br>Silakan tambahkan alamat baru untuk mengirim pesanan ini.
+        </div>` :
+        addresses.map(addr => {
+            const isSelected = order.shipping_address && order.shipping_address.includes(addr.address_detail);
+            return `
+            <div onclick="window.selectAddressForOrder('${orderId}', '${addr.id}')" style="
+                cursor:pointer;
+                border: 2.5px solid ${isSelected ? 'var(--mario-blue)' : 'var(--retro-dark)'};
+                border-radius:6px; padding:10px 12px; margin-bottom:8px;
+                background:${isSelected ? '#EEF4FF' : '#FAFAFA'};
+                position:relative;
+                box-shadow: ${isSelected ? '2px 2px 0 var(--mario-blue)' : '2px 2px 0 #ccc'};
+                transition: all 0.15s;
+            ">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                    <div style="flex:1;min-width:0;text-align:left;">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+                            <span style="font-family:var(--font-retro);font-size:0.72rem;font-weight:700;
+                                background:${addr.is_default ? 'var(--mario-yellow)' : '#E2E8F0'};
+                                border:1.5px solid var(--retro-dark);border-radius:3px;padding:1px 6px;">
+                                ${addr.label}
+                            </span>
+                            ${addr.is_default ? '<span style="font-size:0.62rem;color:#16A34A;font-weight:700;">✓ Utama</span>' : ''}
+                        </div>
+                        <div style="font-family:var(--font-retro);font-size:0.8rem;font-weight:700;">${addr.recipient_name}</div>
+                        <div style="font-size:0.72rem;color:#475569;">${addr.recipient_phone}</div>
+                        <div style="font-size:0.7rem;color:#64748B;margin-top:2px;line-height:1.4;">
+                            ${addr.address_detail}${addr.kecamatan ? ', ' + addr.kecamatan : ''}${addr.kota ? ', ' + addr.kota : ''}${addr.kode_pos ? ' ' + addr.kode_pos : ''}
+                        </div>
+                        ${addr.patokan ? `<div style="font-size:0.65rem;color:#94A3B8;font-style:italic;">📍 ${addr.patokan}</div>` : ''}
+                    </div>
+                </div>
+                ${isSelected ? '<div style="position:absolute;top:10px;right:10px;width:16px;height:16px;background:var(--mario-blue);border-radius:50%;border:2px solid white;box-shadow:0 0 0 2px var(--mario-blue);"></div>' : ''}
+            </div>`;
+        }).join('');
+        
+    overlay.innerHTML = `
+    <div style="
+        background:var(--bg-card);
+        border:3px solid var(--retro-dark);
+        border-bottom:none;
+        border-radius:12px 12px 0 0;
+        box-shadow:-4px -4px 0 var(--retro-dark);
+        width:100%;
+        max-width:480px;
+        max-height:85vh;
+        overflow-y:auto;
+        display:flex;
+        flex-direction:column;
+    ">
+        <!-- Header -->
+        <div style="
+            background:var(--mario-blue);
+            color:white;
+            padding:14px 16px;
+            border-radius:10px 10px 0 0;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            position:sticky;top:0;z-index:1;
+            border-bottom:3px solid var(--retro-dark);
+        ">
+            <div>
+                <div style="font-family:var(--font-retro);font-size:0.95rem;font-weight:700;">📍 Pilih Alamat Pengiriman</div>
+                <div style="font-size:0.65rem;opacity:0.85;">Pilih salah satu alamat untuk pesanan #${orderId}</div>
+            </div>
+            <button onclick="document.getElementById('order-change-address-overlay').remove()"
+                style="background:rgba(255,255,255,0.2);color:white;border:2px solid white;border-radius:4px;width:30px;height:30px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✖</button>
+        </div>
+        
+        <div style="padding:14px 16px;flex:1;overflow-y:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <span style="font-family:var(--font-retro);font-size:0.75rem;font-weight:700;color:var(--retro-dark);">Alamat Tersimpan</span>
+                <button onclick="openAddAddressForm()" style="font-family:var(--font-retro);font-size:0.65rem;border:2px solid var(--mario-blue);border-radius:4px;padding:3px 8px;background:white;color:var(--mario-blue);cursor:pointer;font-weight:700;">+ Tambah Alamat Baru</button>
+            </div>
+            
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                ${addrListHTML}
+            </div>
+        </div>
+        
+        <div style="padding:12px 16px;border-top:2.5px solid var(--retro-dark);background:var(--bg-card);position:sticky;bottom:0;display:flex;gap:8px;">
+            <button onclick="document.getElementById('order-change-address-overlay').remove()" class="btn-retro btn-white" style="width:100%;font-size:0.78rem;padding:9px;">Batal</button>
+        </div>
+    </div>`;
+    
+    document.body.appendChild(overlay);
+};
+
+// ---- Handler Pemilihan Alamat untuk Pesanan ----
+window.selectAddressForOrder = function(orderId, addrId) {
+    const order = db.getOrderById(orderId);
+    if (!order) return;
+    const addresses = db.getAddresses(order.buyer_id);
+    const addr = addresses.find(a => a.id === addrId);
+    if (!addr) return;
+
+    const product = db.getProductById(order.product_id);
+    const seller = db.getProfileById(order.seller_id);
+    const rate = db.getRealShippingRate(
+        seller?.address_kecamatan || 'Depok',
+        addr.kecamatan || addr.kota || '',
+        product?.weight_grams || 250,
+        order.shipping_courier || 'jnt'
+    );
+    const fullAddressString = `${addr.address_detail}${addr.kecamatan ? ', ' + addr.kecamatan : ''}${addr.kota ? ', ' + addr.kota : ''}${addr.kode_pos ? ' ' + addr.kode_pos : ''}`;
+    const priceDeal = Number(order.price_deal || order.price || 0);
+    const adminFee = Number(order.admin_fee || 0);
+    const newTotal = priceDeal + rate + adminFee;
+
+    db.updateOrderField(orderId, {
+        shipping_address: fullAddressString,
+        recipient_name: addr.recipient_name,
+        recipient_phone: addr.recipient_phone,
+        address_label: addr.label,
+        address_patokan: addr.patokan || '',
+        shipping_cost: rate,
+        total_payment: newTotal
+    });
+
+    document.getElementById('order-change-address-overlay')?.remove();
+    // Reset selection context
+    window._activeOrderAddressSelectionId = null;
+    
+    openOrderDetailModal(orderId);
+    showToast('Alamat Diperbarui 📍', 'Alamat pengiriman dan ongkos kirim pesanan berhasil diperbarui.', 'success');
 };
 
 // Modal Pembayaran Simulasi QRIS / Transfer Rekber
@@ -3230,15 +3460,22 @@ function openOrderDetailModal(orderId) {
     }
 
     // === ALAMAT PENGIRIMAN ===
-    const shippingAddrHTML = (order.recipient_name || order.shipping_address)
-        ? `<div style="background:#EFF6FF;border:2px solid #BFDBFE;border-radius:6px;padding:10px 12px;margin-bottom:10px;">
+    let shippingAddrHTML = '';
+    if (order.recipient_name || order.shipping_address) {
+        shippingAddrHTML = `<div style="background:#EFF6FF;border:2px solid #BFDBFE;border-radius:6px;padding:10px 12px;margin-bottom:10px;position:relative;">
             <div style="font-family:var(--font-retro);font-size:0.7rem;font-weight:700;color:var(--mario-blue);margin-bottom:4px;">📍 Alamat Pengiriman</div>
             ${order.recipient_name ? `<div style="font-weight:700;font-size:0.78rem;">${order.recipient_name}</div>` : ''}
             ${order.recipient_phone ? `<div style="font-size:0.72rem;color:#475569;">${order.recipient_phone}</div>` : ''}
             ${order.shipping_address ? `<div style="font-size:0.72rem;color:#475569;margin-top:2px;line-height:1.4;">${order.shipping_address}</div>` : ''}
             ${order.address_patokan ? `<div style="font-size:0.65rem;color:#94A3B8;font-style:italic;margin-top:2px;">📍 ${order.address_patokan}</div>` : ''}
-        </div>`
-        : '<div style="background:#FEF9C3;border:1.5px dashed #FCD34D;border-radius:6px;padding:8px;font-size:0.72rem;color:#92400E;margin-bottom:10px;">⚠️ Alamat pengiriman belum diisi oleh pembeli.</div>';
+            ${isBuyer && order.status === 'waiting_payment' ? `<button onclick="window.openChangeAddressForOrderModal('${orderId}')" style="margin-top:8px;background:#EFF6FF;border:1.5px solid var(--mario-blue);border-radius:4px;padding:4px 8px;font-size:0.68rem;color:var(--mario-blue);font-weight:bold;cursor:pointer;width:100%;box-sizing:border-box;">✏️ Ubah Alamat Pengiriman</button>` : ''}
+        </div>`;
+    } else {
+        shippingAddrHTML = `<div style="background:#FEF9C3;border:1.5px dashed #FCD34D;border-radius:6px;padding:10px;font-size:0.72rem;color:#92400E;margin-bottom:10px;">
+            <div style="margin-bottom:6px;">⚠️ Alamat pengiriman belum diisi oleh pembeli.</div>
+            ${isBuyer && order.status === 'waiting_payment' ? `<button class="btn-retro btn-yellow" onclick="window.openChangeAddressForOrderModal('${orderId}')" style="font-size:0.72rem;padding:6px 12px;width:100%;color:var(--retro-dark);box-sizing:border-box;font-weight:bold;">📍 Pilih Alamat Pengiriman</button>` : ''}
+        </div>`;
+    }
 
     // === BUYER NOTES ===
     const notesHTML = order.buyer_notes
@@ -3393,6 +3630,9 @@ function submitCancelOrder(orderId) {
     }
     document.getElementById('cancel-order-modal')?.remove();
     document.getElementById('order-detail-overlay')?.remove();
+    if (typeof filterBuyerTransactions === 'function') {
+        filterBuyerTransactions(currentBuyerTxFilter);
+    }
     showAlert('Pesanan Dibatalkan ✅', `Pesanan ${orderId} berhasil dibatalkan. Produk kembali tersedia di katalog.`);
 }
 
@@ -3492,6 +3732,9 @@ function confirmOrderReceivedFromModal(orderId) {
         }
         showToast('Selesai 🎉', 'Transaksi berhasil dikonfirmasi!', 'success');
         document.getElementById('order-detail-overlay')?.remove();
+        if (typeof filterBuyerTransactions === 'function') {
+            filterBuyerTransactions(currentBuyerTxFilter);
+        }
         openOrderDetailModal(orderId);
     });
 }
