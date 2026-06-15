@@ -1868,6 +1868,7 @@ const db = {
     const profiles = db.getProfiles();
     const index = profiles.findIndex(p => p.id === profile.id);
     const oldStatus = index !== -1 ? profiles[index].seller_status : null;
+    const oldFullName = index !== -1 ? profiles[index].full_name : null;
     const newStatus = profile.seller_status;
     const isUpdate = index !== -1;
     let mergedProfile;
@@ -1884,6 +1885,25 @@ const db = {
       profiles.push(profile);
     }
     localStorage.setItem(DB_KEYS.PROFILES, JSON.stringify(profiles));
+
+    // Otomatis sinkronkan nama penerima di buyer_addresses jika nama profil berubah
+    if (isUpdate && oldFullName && mergedProfile.full_name && oldFullName !== mergedProfile.full_name) {
+      const allAddrs = JSON.parse(localStorage.getItem(DB_KEYS.ADDRESSES) || '[]');
+      let addressUpdated = false;
+      allAddrs.forEach(addr => {
+        if (addr.user_id === mergedProfile.id && (addr.recipient_name === oldFullName || !addr.recipient_name)) {
+          addr.recipient_name = mergedProfile.full_name;
+          addressUpdated = true;
+          // Sync ke Supabase
+          if (!isSimMode && supabaseClient) {
+            supabaseClient.from('buyer_addresses').update({ recipient_name: mergedProfile.full_name }).eq('id', addr.id).then();
+          }
+        }
+      });
+      if (addressUpdated) {
+        localStorage.setItem(DB_KEYS.ADDRESSES, JSON.stringify(allAddrs));
+      }
+    }
 
     // Supabase Sync
     if (!isSimMode && supabaseClient) {
